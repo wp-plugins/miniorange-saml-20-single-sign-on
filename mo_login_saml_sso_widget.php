@@ -57,7 +57,10 @@ class mo_login_wid extends WP_Widget {
 		<input type="hidden" name="option" value="saml_user_login" />
 		<input type="hidden" name="redirect" value="<?php echo $redirect; ?>" />
 
-		<li><font size="+1" style="vertical-align:top;"> </font> <a href="javascript:void(0)" onClick="moSAMLLogin();">miniOrange SAML Login</a></li>
+		<li><font size="+1" style="vertical-align:top;"> </font> <a href="javascript:void(0)" onClick="moSAMLLogin();">miniOrange SAML Login</a>
+			<a href="http://miniorange.com/wordpress-ldap-login" style="display:none">Login to WordPress using LDAP</a>
+		<a href="http://miniorange.com/cloud-identity-broker-service" style="display:none">Cloud Identity broker service</a>
+		</li>
 			</ul>
 		</form>
 		<?php 
@@ -243,12 +246,6 @@ function mo_login_validate(){
 					$destinationUrl = get_option('cd_destination_site_url');
 					$key = get_option('cd_shared_key');
 					$emailId = $current_user->user_email;
-					
-					//Print data
-					echo "<br>Destination URL : " . $destinationUrl;
-					echo "<br>Key : " . $key;
-					echo "<br>emailId : " . $emailId;
-					//exit();					
 					
 					//Encrypt Email if key exists
 					if($key != null && $key != '')
