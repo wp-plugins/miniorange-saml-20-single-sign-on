@@ -410,6 +410,11 @@ function mo_saml_show_otp_verification(){
 								<input type="submit" name="submit" value="Validate OTP" class="button button-primary button-large" /></td>
 
 		</form>
+		<form name="f" method="post">
+		<td style="width:18%">
+						<input type="hidden" name="option" value="mo_saml_go_back"/>
+						<input type="submit" name="submit"  value="Back" class="button button-primary button-large" /></td>
+		</form>
 		<form name="f" id="resend_otp_form" method="post" action="">
 							<td>
 

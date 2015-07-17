@@ -16,7 +16,7 @@ miniOrange SAML 2.0 SSO allows users residing at SAML 2.0 Compliant Identity Pro
 
 miniOrange SAML SSO Plugin acts as a SAML 2.0 Service Provide which can be configured to establish the trust between the plugin and various SAML 2.0 supported Identity Providers to securely authenticate the user to the Wordpress site.
 
-If you require any Single Sign On application or need any help with installing this plugin, please free to email us at info@miniorange.com or <a href="http://miniorange.com/contact">Contact us</a>.
+If you require any Single Sign On application or need any help with installing this plugin, please feel free to email us at info@miniorange.com or <a href="http://miniorange.com/contact">Contact us</a>.
 
 = Features :- =
 

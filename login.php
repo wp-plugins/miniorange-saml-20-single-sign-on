@@ -309,6 +309,11 @@ class saml_mo_login {
 											$this->mo_saml_show_error_message();
 									}
 
+		}else if( isset( $_POST['option'] ) and $_POST['option'] == "mo_saml_go_back" ){
+				update_option('mo_saml_registration_status','');
+				delete_option('mo_saml_new_registration');
+				delete_option('mo_saml_admin_email');
+
 		}
 
 		

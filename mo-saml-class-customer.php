@@ -314,10 +314,9 @@ class Customersaml {
 			'samlLogoutUrl'			=> $samlLogoutUrl,
 			'idpEntityId'			=> $samlIssuer,
 			'samlX509Certificate'	=> $samlX509Certificate,
-			'isDefault'				=> 'true',
 			'assertionSigned'		=> $assertionSigned,
 			'responseSigned'		=> $responseSigned,
-			'overrideReturnUrl'		=> 'false',
+			'overrideReturnUrl'		=> 'true',
 			'returnUrl'				=> site_url() . '/?option=readsamllogin'
 		);
 		
