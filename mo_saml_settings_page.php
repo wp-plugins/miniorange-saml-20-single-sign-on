@@ -353,7 +353,12 @@ function mo_login_help(){ ?>
 				<li><b>SP-EntityID/ISSUER  :</b> https://auth.miniorange.com/moas</li>
 				<li><b>Subject Type</b>	 : Username/Email Address</li>
 			 </ol>
-
+			
+			<h2>Add login Link to post/page/blog</h2>
+			<ol>
+				<li>Go to Appearances > Widgets</li>
+				<li>Select Login with you Identity Provider. Drag and drop to your favourite location and save.</li>
+			</ol>
 	
 
 		</p>	  
