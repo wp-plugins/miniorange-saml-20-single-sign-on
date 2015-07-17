@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<saml2p:Response xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol" Destination="http://dev-site.cu.cc/wordpress/?option=validate_saml" ID="aolonggapfnbdcbahncheleookcfndialicdejbe" InResponseTo="_39d187b6ef349cc245bc75be9c2ad61ea1d4dde4dd" IssueInstant="2015-06-09T05:07:57.134Z" Version="2.0">
+	<saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">https://auth.miniorange.com/moas</saml2:Issuer>
+	<saml2p:Status>
+		<saml2p:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
+	</saml2p:Status>
+	<saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" ID="fllblhbcnggcdhekimlfpkphcnmomnecbnnbgcoe" IssueInstant="2015-06-09T05:07:57.134Z" Version="2.0">
+		<saml2:Issuer>https://auth.miniorange.com/moas</saml2:Issuer>
+		<saml2:Subject>
+			<saml2:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent">dx5eqGAp5WtSDVfk0bTgkHLkqWuxbXn9kp7m3t3JYpE=</saml2:NameID>
+			<saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+				<saml2:SubjectConfirmationData InResponseTo="_39d187b6ef349cc245bc75be9c2ad61ea1d4dde4dd" NotOnOrAfter="2015-06-09T05:08:57.197Z" Recipient="http://dev-site.cu.cc/openid/plugins/authentication/miniorangecrossdomain/saml2/acs.php"/>
+			</saml2:SubjectConfirmation>
+		</saml2:Subject>
+		<saml2:Conditions NotBefore="2015-06-09T05:07:57.134Z" NotOnOrAfter="2015-06-09T05:08:57.134Z">
+			<saml2:AudienceRestriction>
+				<saml2:Audience>http://dev-site.cu.cc/wordpress/</saml2:Audience>
+			</saml2:AudienceRestriction>
+		</saml2:Conditions>
+		<saml2:AuthnStatement AuthnInstant="2015-06-09T05:07:57.134Z">
+			<saml2:AuthnContext>
+				<saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</saml2:AuthnContextClassRef>
+			</saml2:AuthnContext>
+		</saml2:AuthnStatement>
+	</saml2:Assertion>
+</saml2p:Response>
