@@ -86,6 +86,10 @@ function mo_saml_show_new_registration_page_saml() {
 								value="<?php echo get_option('mo_saml_admin_phone');?>" /></td>
 						</tr>
 						<tr>
+								<td></td>
+								<td>We will call only if you need support.</td>
+							</tr>
+						<tr>
 							<td><b><font color="#FF0000">*</font>Password:</b></td>
 							<td><input class="mo_table_textbox" required type="password"
 								name="password" placeholder="Choose your password (Min. length 8)" /></td>

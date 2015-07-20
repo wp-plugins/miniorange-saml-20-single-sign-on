@@ -20,6 +20,7 @@ class saml_mo_login {
 		add_action( 'admin_init',  array( $this, 'miniorange_login_widget_saml_save_settings' ) );		
 		add_action( 'admin_enqueue_scripts', array( $this, 'plugin_settings_style' ) );
 		register_deactivation_hook(__FILE__, array( $this, 'mo_sso_saml_deactivate'));	
+		register_uninstall_hook(__FILE__, array( 'saml_mo_login', 'mo_sso_saml_uninstall'));
 		add_action( 'admin_enqueue_scripts', array( $this, 'plugin_settings_script' ) );
 		add_action( 'plugins_loaded',  array( $this, 'mo_login_widget_text_domain' ) );		
 		remove_action( 'admin_notices', array( $this, 'mo_saml_success_message') );
@@ -64,6 +65,28 @@ class saml_mo_login {
 		delete_option('mo_saml_customer_token');
 		delete_option('mo_saml_message');
 		delete_option('mo_saml_registration_status');
+	}
+	public function mo_sso_saml_uninstall(){
+		
+		delete_option('mo_saml_host_name');
+		delete_option('mo_saml_new_registration');
+		delete_option('mo_saml_admin_phone');
+		delete_option('mo_saml_admin_email');
+		delete_option('mo_saml_admin_password');
+		delete_option('mo_saml_verify_customer');
+		delete_option('mo_saml_admin_customer_key');
+		delete_option('mo_saml_admin_api_key');
+		delete_option('mo_saml_customer_token');
+		delete_option('mo_saml_message');
+		delete_option('mo_saml_registration_status');
+		delete_option('saml_idp_config_id');
+		delete_option('saml_identity_name');
+		delete_option('saml_login_url');
+		delete_option('saml_logout_url');
+		delete_option('saml_issuer');
+		delete_option('saml_x509_certificate');
+		delete_option('saml_response_signed');
+		delete_option('saml_assertion_signed');
 	}
 	
 	function mo_login_widget_text_domain(){
@@ -131,8 +154,12 @@ class saml_mo_login {
 			
 			$saveSaml = new Customersaml();
 			$outputSaml = json_decode( $saveSaml->save_external_idp_config(), true );
-			update_option('saml_idp_config_id', $outputSaml['id']);
-			update_option('mo_saml_message', 'Identity Provider details saved successfully');
+
+			if(isset($outputSaml['customerId']))
+				update_option('mo_saml_message', 'Identity Provider details saved successfully');
+			else
+				update_option('mo_saml_message', 'Save configuration Failed. Server is down. Please try again.');
+			
 			$this->mo_saml_show_success_message();
 			
 			//Call to saveConfiguration.

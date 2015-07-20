@@ -306,7 +306,6 @@ class Customersaml {
 		$responseSigned 	= get_option('saml_response_signed') == 'checked' ? 'true' : 'false';
 		
 		$fields = array(
-			'id'					=> $Id,
 			'customerId' 			=> $custId,
 			'idpType' 				=> $idpType,
 			'identifier'			=> $identifier,
