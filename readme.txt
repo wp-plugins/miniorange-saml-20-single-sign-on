@@ -72,7 +72,7 @@ Please email us at info@miniorange.com or <a href="http://miniorange.com/contact
 
 == Changelog ==
 
-= 1.0.0 =
+= 1.1.0 =
 * this is the first release.
 
 == Upgrade Notice ==
