@@ -350,7 +350,8 @@ function mo_login_help(){ ?>
 		
 		
 			<h2>Configure the Identity Provider with the following settings: </h2>
-			 
+			  <p>Now you need to configure the following settings in your Identity Provider for authenticating user back to the Wordpress site from your Identity Provider.</p>
+
 
 			 <ol>
 				<li><b>ACS Url :</b>  https://auth.miniorange.com/moas/rest/saml/acs </li>
