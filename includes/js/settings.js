@@ -28,6 +28,12 @@ jQuery(document).ready(function () {
         jQuery("#facebook_instru").toggle();
     });
 	
+	//show and hide attribute mapping instructions
+    jQuery("#toggle_am_content").click(function () {
+        jQuery("#show_am_content").toggle();
+    });
+
+	
 	//toggle content
 	jQuery("#toggle2").click(function() {
 		jQuery("#panel2").toggle();

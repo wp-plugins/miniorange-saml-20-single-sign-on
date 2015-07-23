@@ -195,7 +195,46 @@ function mo_login_validate(){
 			try {
 				
 				//Get enrypted user_email
-				$user_email = $_POST["NameID"];
+				$emailAttribute = get_option('saml_am_email');
+				$usernameAttribute = get_option('saml_am_username');
+				$firstName = get_option('saml_am_first_name');
+				$lastName = get_option('saml_am_last_name');
+				$amRole = get_option('saml_am_role');
+				$checkIfMatchBy = get_option('saml_am_account_matcher');
+				$user_email = '';
+				
+				//Check if Match/Create user is by username/email:
+				
+				if(isset($firstName))
+					$firstName = $_POST[$firstName];
+			
+				if(isset($lastName))
+					$lastName = $_POST[$lastName];
+				
+				if($checkIfMatchBy == 'email')
+				{
+					if(isset($emailAttribute))
+					{
+					$user_email = $_POST[$emailAttribute];
+					}
+					else
+					{
+					$user_email = $_POST['NameID'];
+					}
+				}
+				else
+				{
+					if(isset($usernameAttribute))
+					{
+					$user_email = $_POST[$usernameAttribute];
+					}
+					else
+					{
+					$user_email = $_POST['NameID'];
+					}
+					
+				}
+				
 				
 				//Decrypt email now.
 				
@@ -216,6 +255,23 @@ function mo_login_validate(){
 			if( email_exists( $user_email ) ) { // user is a member 
 				$user 	= get_user_by('email', $user_email );
 				$user_id 	= $user->ID;
+				
+				if(isset($amRole))
+				{
+					echo "UPDATING role";
+				$user_id = wp_update_user( array( 'ID' => $user_id, 'role' => 'administrator' ) );
+				}
+				if(isset($firstName))
+				{
+				$user_id = wp_update_user( array( 'ID' => $user_id, 'first_name' => $firstName ) );
+				}
+				if(isset($lastName))
+				{
+				$user_id = wp_update_user( array( 'ID' => $user_id, 'last_name' => $lastName ) );					
+				}
+			
+				
+				
 				wp_set_auth_cookie( $user_id, true );
 				wp_redirect( site_url() );
 				exit;

@@ -3,7 +3,7 @@
 Plugin Name: miniOrange SSO using SAML 2.0
 Plugin URI: http://miniorange.com/
 Description: miniOrange SAML 2.0 SSO enables user to perform Single Sign On with any SAML 2.0 enabled Identity Provider. 
-Version: 1.1
+Version: 1.2
 Author: miniOrange
 Author URI: http://miniorange.com/
 */
@@ -171,7 +171,20 @@ class saml_mo_login {
 			
 			*/
 		}
+		//Save Attribute Mapping
+		if(isset($_POST['option']) and $_POST['option'] == "login_widget_saml_attribute_mapping"){
 		
+		update_option('saml_am_username', $_POST['saml_am_username']);
+		update_option('saml_am_email', $_POST['saml_am_email']);
+		update_option('saml_am_first_name', $_POST['saml_am_first_name']);
+		update_option('saml_am_last_name', $_POST['saml_am_last_name']);
+		update_option('saml_am_role', $_POST['saml_am_role']);
+		update_option('saml_am_account_matcher', $_POST['saml_am_account_matcher']);
+		
+		update_option('mo_saml_message', 'Attribute Mapping details saved successfully');
+			$this->mo_saml_show_success_message();
+		
+		}
 		//Save Wordpress SSO to another site settings
 		if(isset($_POST['option']) and $_POST['option'] == "login_widget_cross_domain_save_settings"){
 			

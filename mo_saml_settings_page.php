@@ -228,7 +228,6 @@ function mo_saml_apps_config_saml() {
 		$cert_fp = get_option('cert_fp');
 		
 		//Broker Service
-
 		$saml_identity_name = get_option('saml_identity_name');
 		$saml_login_url = get_option('saml_login_url');
 		$saml_logout_url = get_option('saml_logout_url');
@@ -239,6 +238,15 @@ function mo_saml_apps_config_saml() {
 		$saml_assertion_signed = get_option('saml_assertion_signed');
 		if($saml_assertion_signed == NULL) {$saml_assertion_signed = 'Yes'; }
 		
+		//Attribute mapping
+		$saml_am_username = get_option('saml_am_username');	
+		if($saml_am_username == NULL) {$saml_am_username = 'NameID'; }
+		$saml_am_email = get_option('saml_am_email');
+		if($saml_am_email == NULL) {$saml_am_email = 'NameID'; }
+		$saml_am_first_name = get_option('saml_am_first_name');
+		$saml_am_last_name = get_option('saml_am_last_name');
+		$saml_am_role = get_option('saml_am_role');
+		
 		
 		?>
 
@@ -246,29 +254,29 @@ function mo_saml_apps_config_saml() {
 		<input type="hidden" name="option" value="login_widget_saml_save_settings" />
 		<table width="98%" border="0" style="background-color:#FFFFFF; border:1px solid #CCCCCC; padding:0px 0px 0px 10px; margin:2px;">
 		  <tr>
-			<td width="45%"><h2>Add Identity Provider:</h2></td>
-			<td width="55%">&nbsp;</td>
+			<td colspan="2"><h2>Add Identity Provider: - REQUIRED</h2> (<a href="#instructions_idp">click here for instructions</a>)</td>
+			
 		  </tr>
 		 
 		<tr>
 			<td><strong>Identity Provider Name *:</strong></td>
-			<td><input type="text" name="saml_identity_name" style="width: 300px;" value="<?php echo $saml_identity_name;?>" required/></td>
+			<td><input type="text" name="saml_identity_name" style="width: 350px;" value="<?php echo $saml_identity_name;?>" required/></td>
 		  </tr>
 		  <tr>
 			<td><strong>Saml Login URL *:</strong></td>
-			<td><input type="url" name="saml_login_url" style="width: 300px;" value="<?php echo $saml_login_url;?>" required/></td>
+			<td><input type="url" name="saml_login_url" style="width: 350px;" value="<?php echo $saml_login_url;?>" required/></td>
 		  </tr>
 		  <tr>
 			<td><strong>Saml Logout URL:</strong></td>
-			<td><input type="url" name="saml_logout_url" style="width: 300px;" value="<?php echo $saml_logout_url;?>" /></td>
+			<td><input type="url" name="saml_logout_url" style="width: 350px;" value="<?php echo $saml_logout_url;?>" /></td>
 		  </tr>
 		  <tr>
 		  <td><strong>IDP Entity ID *:</strong></td>
-			<td><input type="text" name="saml_issuer" style="width: 300px;" value="<?php echo $saml_issuer;?>" required/></td>
+			<td><input type="text" name="saml_issuer" style="width: 350px;" value="<?php echo $saml_issuer;?>" required/></td>
 		  </tr>
 		   <tr>
 		  <td><strong>Copy and Paste SAML X-509 Certificate text:</strong></td>
-			<td><textarea rows="4" cols="5" name="saml_x509_certificate" style="width: 300px;"><?php echo $saml_x509_certificate;?></textarea></td>
+			<td><textarea rows="4" cols="5" name="saml_x509_certificate" style="width: 350px;"><?php echo $saml_x509_certificate;?></textarea></td>
 		  </tr>
 		  <tr>
 		  <td><br><strong>Response Signed:</strong></td>
@@ -286,13 +294,86 @@ function mo_saml_apps_config_saml() {
 			<?php if($saml_identity_name != null) { ?>
 			<input type="button" name="test" onclick="showTestWindow();" value="Test the saved configuration" class="button button-primary button-large" />
 			<?php } ?>
+			<br/><br/>
 			</td>
 		  </tr>
 	
+		
+		</table>
+		</form>
+		<br>
+		<form name="saml_form_am" method="post" action="">
+		<input type="hidden" name="option" value="login_widget_saml_attribute_mapping" />
+		<table width="98%" border="0" style="background-color:#FFFFFF; border:1px solid #CCCCCC; padding:0px 0px 0px 10px; margin:2px;">
 		  <tr>
-			<td colspan="2"><?php mo_login_help();?></td>
-
+			<td width="45%"><a id="toggle_am_content"><h2>Attribute Mapping : - OPTIONAL</h2></a></td>
+			<td width="55%">&nbsp;</td>
 		  </tr>
+		
+			  <tr>
+			  
+			  <td colspan="2"><p>Sometimes the names of the attributes sent by the IdP not match the names used by Wordpress for the user accounts. In this section we can set the mapping between IdP fields and Wordpress fields. Notice that this mapping could be also set at Onelogin's IdP</p></td>
+			  </tr>
+			  <tr>
+			  <td><strong>Match/Create Wordpress account by: </strong></td>
+			  <td><select name="saml_am_account_matcher" id="saml_am_account_matcher">
+				  <option value="email"<?php if(get_option('saml_am_account_matcher') == 'email') echo 'selected="selected"' ; ?> >Email</option>
+				  <option value="username"<?php if(get_option('saml_am_account_matcher') == 'username') echo 'selected="selected"' ; ?> >Username</option>
+				</select>
+			  </td>
+			  </tr>
+			  <tr>
+				<td><strong>Username *:</strong></td>
+				<td><input type="text" name="saml_am_username" placeholder="Enter name of the parameter from IDP for username" style="width: 350px;" value="<?php echo $saml_am_username;?>" required /></td>
+			  </tr>
+			  <tr>
+				<td><strong>Email *:</strong></td>
+				<td><input type="text" name="saml_am_email" placeholder="Enter name of the parameter from IDP for Email" style="width: 350px;" value="<?php echo $saml_am_email;?>" required /></td>
+			  </tr>
+			  <tr>
+				<td><strong>First Name:</strong></td>
+				<td><input type="text" name="saml_am_first_name" placeholder="Enter name of the parameter from IDP for First Name" style="width: 350px;" value="<?php echo $saml_am_first_name;?>" /></td>
+			  </tr>
+			  <tr>
+				<td><strong>Last Name:</strong></td>
+				<td><input type="text" name="saml_am_last_name" placeholder="Enter name of the parameter from IDP for Last Name" style="width: 350px;" value="<?php echo $saml_am_last_name;?>" /></td>
+			  </tr>
+			  <tr>
+				<td valign="top"><strong>Role:</strong></td>
+				<td>
+				
+				<select name="saml_am_role" id="saml_am_role">
+				  <option value="administrator"<?php if(get_option('saml_am_role') == 'administrator') echo 'selected="selected"' ; ?> >Administrator</option>
+				  <option value="editor"<?php if(get_option('saml_am_role') == 'editor') echo 'selected="selected"' ; ?> >Editor</option>
+				  <option value="contributor"<?php if(get_option('saml_am_role') == 'contributor') echo 'selected="selected"' ; ?> >Contributor</option>
+				  <option value="subscriber"<?php if(get_option('saml_am_role') == 'subscriber') echo 'selected="selected"' ; ?> >Subscriber</option>
+				</select>
+				<br>
+				The attribute that contains the role of the user, For example 'Administrator'. If Wordpress can't figure what role assign to the user, it will assign the default role defined at the general settings.</td>
+			  </tr>
+				  
+			  <tr>
+				<td>&nbsp;</td>
+				<td><input type="submit" name="submit" value="Save" class="button button-primary button-large" /> &nbsp; 
+				<br /><br />
+				</td>
+			  </tr>
+			  
+			  <br />
+				
+		</table>
+		</form>
+		<form>
+		<br /><br />
+		<div id="instructions_idp"></div>
+		<table width="98%" border="0" style="background-color:#FFFFFF; border:1px solid #CCCCCC; padding:0px 0px 0px 10px; margin:2px;">
+		  <tr>
+			<td width="45%"><h2>Instructions: </h2></td>
+			<td width="55%">&nbsp;</td>
+		  </tr>
+		<tr>
+		<td colspan="2"><?php mo_login_help();?></td>
+		</tr>
 		</table>
 		</form>
 		
@@ -302,7 +383,8 @@ function mo_saml_apps_config_saml() {
 }
 function mo_saml_get_test_url(){
 	
-	$url = get_option('mo_saml_host_name') . '/moas/rest/saml/request?id=' . get_option('mo_saml_admin_customer_key') . '&returnurl=' . urlencode( site_url() . "/?option=readsamllogin" );
+	$url = get_option('mo_saml_host_name') . '/idptest/?id=' . get_option('mo_saml_admin_customer_key') . '&key=' . get_option('mo_saml_customer_token');
+	//$url = get_option('mo_saml_host_name') . '/moas/rest/saml/request?id=' . get_option('mo_saml_admin_customer_key') . '&returnurl=' . urlencode( site_url() . "/?option=readsamllogin" );
 	return $url;
 }
 function mo_saml_is_customer_registered_saml() {
@@ -350,15 +432,15 @@ function mo_login_help(){ ?>
 		
 		
 			<h2>Configure the Identity Provider with the following settings: </h2>
-			  <p>Now you need to configure the following settings in your Identity Provider for authenticating user back to the Wordpress site from your Identity Provider.</p>
-
+			 <p>Now you need to configure the following settings in your Identity Provider for authenticating user back to the Wordpress site from your Identity Provider.</p>
 
 			 <ol>
 				<li><b>ACS Url :</b>  https://auth.miniorange.com/moas/rest/saml/acs </li>
 				<li><b>SP-EntityID/ISSUER  :</b> https://auth.miniorange.com/moas</li>
 				<li><b>Subject Type</b>	 : Username/Email Address</li>
 			 </ol>
-			
+			 <p>If you want an <b>IdP Initiated Login</b>, then copy and paste the following URL against default Replay State URL in the IdP configuration:</p>
+			<i><?php echo site_url(); ?>?option=readsamllogin&mId=<?php echo get_option('mo_saml_admin_customer_key') ?></i>
 			<h2>Add login Link to post/page/blog</h2>
 			<ol>
 				<li>Go to Appearances > Widgets</li>
@@ -447,6 +529,7 @@ function miniorange_support_saml(){
 		</div>-->
 		<div>
 			<h3>Contact Us</h3>
+			<p>Contact us and we can help you with configuring your Identity Provider making the Plugin Integration with the IdP and SSO up and running.</p>
 			<form method="post" action="">
 				<input type="hidden" name="option" value="mo_saml_contact_us_query_option" />
 				<table class="mo_settings_table">
