@@ -72,10 +72,16 @@ Please email us at info@miniorange.com or <a href="http://miniorange.com/contact
 
 == Changelog ==
 
+= 1.1.0 =
+* this is the second release.
+
 = 1.0.0 =
 * this is the first release.
 
 == Upgrade Notice ==
+
+= 1.1 =
+Contanis Attribute mapping / Role mapping and test application.
 
 = 1.0 =
 I will update this plugin when ever it is required.
