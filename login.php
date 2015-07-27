@@ -141,7 +141,7 @@ class saml_mo_login {
 				}
 			else
 				{
-				update_option('saml_response_signed' , '');
+				update_option('saml_response_signed' , 'Yes');
 				}
 			if(isset($_POST['saml_assertion_signed']))
 				{
@@ -149,7 +149,7 @@ class saml_mo_login {
 				}
 			else
 				{
-				update_option('saml_assertion_signed' , '');
+				update_option('saml_assertion_signed' , 'Yes');
 				}
 			
 			$saveSaml = new Customersaml();

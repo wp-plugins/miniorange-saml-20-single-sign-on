@@ -234,7 +234,7 @@ function mo_saml_apps_config_saml() {
 		$saml_issuer = get_option('saml_issuer');
 		$saml_x509_certificate = get_option('saml_x509_certificate');
 		$saml_response_signed = get_option('saml_response_signed');
-		if($saml_response_signed == NULL) {$saml_response_signed = 'Yes'; }
+		if($saml_response_signed == NULL) {$saml_response_signed = 'checked'; }
 		$saml_assertion_signed = get_option('saml_assertion_signed');
 		if($saml_assertion_signed == NULL) {$saml_assertion_signed = 'Yes'; }
 		
@@ -255,36 +255,72 @@ function mo_saml_apps_config_saml() {
 		<table width="98%" border="0" style="background-color:#FFFFFF; border:1px solid #CCCCCC; padding:0px 0px 0px 10px; margin:2px;">
 		  <tr>
 			<td colspan="2"><h2>Add Identity Provider: - REQUIRED</h2> (<a href="#instructions_idp">click here for instructions</a>)</td>
-			
 		  </tr>
-		 
-		<tr>
-			<td><strong>Identity Provider Name *:</strong></td>
-			<td><input type="text" name="saml_identity_name" style="width: 350px;" value="<?php echo $saml_identity_name;?>" required/></td>
+		 <tr>
+			<td colspan="2"><h4>Login to the SAML application(Identity Provider). Search for, "Configuring &lt;SAML App&gt; as an IDP (Identity provider) with SAML 2.0", follow instructions for configuring the SAML application as an "Identity Provider". Use <a href="#instructions_idp">these settings</a> for configuration. Download metadeta.xml and enter the data below.<h4></td>
 		  </tr>
+		  <tr>
+			<td style="width:200px;"><strong>Identity Provider Name *:</strong></td>
+			<td><input type="text" name="saml_identity_name" style="width: 95%;" value="<?php echo $saml_identity_name;?>" required/></td>
+		  </tr>
+		  <tr>
+			<td>&nbsp;</td>
+			<td><i>Enter the name of the Identity Provider. Example: Salesforce, OpenAM</i><br/></td>
+		  </tr>
+		  <tr><td>&nbsp;</td></tr>
 		  <tr>
 			<td><strong>Saml Login URL *:</strong></td>
-			<td><input type="url" name="saml_login_url" style="width: 350px;" value="<?php echo $saml_login_url;?>" required/></td>
-		  </tr>
-		  <tr>
-			<td><strong>Saml Logout URL:</strong></td>
-			<td><input type="url" name="saml_logout_url" style="width: 350px;" value="<?php echo $saml_logout_url;?>" /></td>
-		  </tr>
-		  <tr>
-		  <td><strong>IDP Entity ID *:</strong></td>
-			<td><input type="text" name="saml_issuer" style="width: 350px;" value="<?php echo $saml_issuer;?>" required/></td>
+			<td><input type="url" name="saml_login_url" style="width: 95%;" value="<?php echo $saml_login_url;?>" required/></td>
 		  </tr>
 		   <tr>
-		  <td><strong>Copy and Paste SAML X-509 Certificate text:</strong></td>
-			<td><textarea rows="4" cols="5" name="saml_x509_certificate" style="width: 350px;"><?php echo $saml_x509_certificate;?></textarea></td>
+			<td>&nbsp;</td>
+			<td><i>Enter the Single Sign On service HTTP Redirect URL mentioned in the IDP Metadata.xml file or in the IDP configuration.</i></td>
 		  </tr>
+		  <tr><td>&nbsp;</td></tr>
+		  <tr>
+			<td><strong>Saml Logout URL:</strong></td>
+			<td><input type="url" name="saml_logout_url" style="width: 95%;" value="<?php echo $saml_logout_url;?>" /></td>
+		  </tr>
+		  <tr>
+			<td>&nbsp;</td>
+			<td><i>Optionally enter the Identity provider SLO(Single Logout URL) endpoint. This is the URL where you want the user to be redirected to upon logout. By default, logout redirects to your WordPress homepage.</i></td>
+		  </tr>
+		  <tr><td>&nbsp;</td></tr>
+		  <tr>
+		  <td><strong>IDP Entity ID *:</strong></td>
+			<td><input type="text" name="saml_issuer" style="width: 95%;" value="<?php echo $saml_issuer;?>" required/></td>
+		  </tr>
+		  <tr>
+			<td>&nbsp;</td>
+			<td><i>Enter the Identity Provider Entity ID mentioned in the IDP metadata.xml file or in the IDP configuration.</i></td>
+		  </tr>
+		  <tr><td>&nbsp;</td></tr>
+		   <tr>
+		  <td><strong>Copy and Paste SAML X-509 Certificate text:</strong></td>
+			<td><textarea rows="4" cols="5" name="saml_x509_certificate" style="width: 95%;"><?php echo $saml_x509_certificate;?></textarea></td>
+		  </tr>
+		  <tr>
+			<td>&nbsp;</td>
+			<td><i>Copy and Paste the X509 Certificate from the Metadata.xml file mentioned in the certificate tags or in the IDP configuration. 
+			Format of the certificate should be like: <br/>-----BEGIN CERTIFICATE-----<br/>XXXXXXXXXXXXXXXXXXXXXXXXXXX<br/>-----END CERTIFICATE-----</i></td>
+		  </tr>
+		  <tr><td>&nbsp;</td></tr>
 		  <tr>
 		  <td><br><strong>Response Signed:</strong></td>
 			<td><input type="checkbox" name="saml_response_signed" value="Yes" <?php echo $saml_response_signed; ?> /></td>
 		  </tr>
 		  <tr>
+			<td>&nbsp;</td>
+			<td><i>Check this if the Identity Provider is signing the Response. Leave this unchecked by default, if no setting is provided by the IDP.</i></td>
+		  </tr>
+		  <tr><td>&nbsp;</td></tr>
+		  <tr>
 		  <td><br><strong>Assertion Signed:</strong></td>
 			<td><input type="checkbox" name="saml_assertion_signed" value="Yes" <?php echo $saml_assertion_signed; ?> /></td>
+		  </tr>
+		  <tr>
+			<td>&nbsp;</td>
+			<td><i>Check this if the Identity Provider is signing the assertion. Leave this unchecked by default, if no setting is provided by the IDP.</i></td>
 		  </tr>
 		  
 		  
@@ -306,16 +342,15 @@ function mo_saml_apps_config_saml() {
 		<input type="hidden" name="option" value="login_widget_saml_attribute_mapping" />
 		<table width="98%" border="0" style="background-color:#FFFFFF; border:1px solid #CCCCCC; padding:0px 0px 0px 10px; margin:2px;">
 		  <tr>
-			<td width="45%"><a id="toggle_am_content"><h2>Attribute Mapping : - OPTIONAL</h2></a></td>
-			<td width="55%">&nbsp;</td>
+			<td colspan="2"><a id="toggle_am_content"><h2>Attribute Mapping : - OPTIONAL</h2></a></td>
 		  </tr>
 		
 			  <tr>
 			  
-			  <td colspan="2"><p>Sometimes the names of the attributes sent by the IdP not match the names used by Wordpress for the user accounts. In this section we can set the mapping between IdP fields and Wordpress fields. Notice that this mapping could be also set at Onelogin's IdP</p></td>
+			  <td colspan="2"><p>Sometimes the names of the attributes sent by the IdP not match the names used by Wordpress for the user accounts. In this section we can set the mapping between IdP fields and Wordpress fields. Notice that this mapping could be also set at IdP.</p></td>
 			  </tr>
 			  <tr>
-			  <td><strong>Match/Create Wordpress account by: </strong></td>
+			  <td style="width:200px;"><strong>Match/Create Wordpress account by: </strong></td>
 			  <td><select name="saml_am_account_matcher" id="saml_am_account_matcher">
 				  <option value="email"<?php if(get_option('saml_am_account_matcher') == 'email') echo 'selected="selected"' ; ?> >Email</option>
 				  <option value="username"<?php if(get_option('saml_am_account_matcher') == 'username') echo 'selected="selected"' ; ?> >Username</option>
@@ -349,7 +384,7 @@ function mo_saml_apps_config_saml() {
 				  <option value="subscriber"<?php if(get_option('saml_am_role') == 'subscriber') echo 'selected="selected"' ; ?> >Subscriber</option>
 				</select>
 				<br>
-				The attribute that contains the role of the user, For example 'Administrator'. If Wordpress can't figure what role assign to the user, it will assign the default role defined at the general settings.</td>
+				<i>The attribute that contains the role of the user, For example 'Administrator'. If Wordpress can't figure what role assign to the user, it will assign the default role defined at the general settings.</i></td>
 			  </tr>
 				  
 			  <tr>
@@ -410,7 +445,7 @@ function mo_login_help(){ ?>
 		<p>
 		
 		<div id="miniorange_provider"></div>
-			<h2>Configuring the plugin.</h2>
+			<!--h2>Configuring the plugin.</h2>
 			<ol>
 			<li>Login to the Identity Provider.</li>
 			<li>Download the metadata.xml from your Identity provider if provided or else search for, "Configuring it as an IDP with SAML 2.0"</li>
@@ -428,7 +463,7 @@ function mo_login_help(){ ?>
 			<br><b>Assertion Signed</b>: Check this if the Identity Provider is signing the assertion Or Leave this unchecked by default, if no setting are provided by the IDP.
 			</li>
 			
-			</ol>
+			</ol-->
 		
 		
 			<h2>Configure the Identity Provider with the following settings: </h2>
