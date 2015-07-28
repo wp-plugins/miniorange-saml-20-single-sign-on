@@ -72,6 +72,9 @@ Please email us at info@miniorange.com or <a href="http://miniorange.com/contact
 
 == Changelog ==
 
+= 1.2.0 =
+* this is the third release.
+
 = 1.1.0 =
 * this is the second release.
 
@@ -80,8 +83,15 @@ Please email us at info@miniorange.com or <a href="http://miniorange.com/contact
 
 == Upgrade Notice ==
 
+= 1.3 =
+Added validations and fixes.
+UI Improvements.
+
+= 1.2 =
+Some UI improvements.
+
 = 1.1 =
-Contanis Attribute mapping / Role mapping and test application.
+Added Attribute mapping / Role mapping and test application.
 
 = 1.0 =
 I will update this plugin when ever it is required.

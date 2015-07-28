@@ -1,20 +1,24 @@
 <?php
 function mo_register_saml_sso() {
+	if( isset( $_GET[ 'tab' ] ) ) {
+		$active_tab = $_GET[ 'tab' ];
+	} else {
+		$active_tab = 'config';
+	}
 	?>
-<div id="tab">
+<!--div id="tab">
 	<h2 class="nav-tab-wrapper">
 		<a class="nav-tab nav-tab-active"
-			href="admin.php?page=mo_saml_settings">Configure SAML Identity Provider for SSO</a> <a
+			href="admin.php?page=mo_saml_settings">Step 1: Configure Identity Provider</a> <a
 			class="nav-tab" href="admin.php?page=mo_cross_domain_saml">SSO to another Wordpress site
 			</a>
 	</h2>
-</div>
+</div-->
 <div id="mo_saml_settings">
 
 	<div class="miniorange_container">
 	<table style="width:100%;">
-		<tr>
-			<td style="vertical-align:top;width:65%;">
+			
 		<?php
 		if(_is_curl_installed())
 		{
@@ -28,7 +32,7 @@ function mo_register_saml_sso() {
 				delete_option ( 'password_mismatch' );
 				mo_saml_show_new_registration_page_saml();
 			} else {
-				mo_saml_apps_config_saml ();
+				mo_saml_apps_page ($active_tab);
 			}
 	
 		}
@@ -37,11 +41,6 @@ function mo_register_saml_sso() {
 			echo "CURL NOT ENABLED. You need to enable curl in your PHP to use this plugin.";
 		}
 	?>
-			</td>
-			<td style="vertical-align:top;padding-left:1%;">
-						<?php echo miniorange_support_saml(); ?>	
-					</td>
-		</tr>
 	</table>
 	</div>
 			
@@ -59,7 +58,12 @@ function _is_curl_installed() {
 function mo_saml_show_new_registration_page_saml() {
 	update_option ( 'mo_saml_new_registration', 'true' );
 	?>
+	<tr>
+		<td colspan="2"><h2>miniOrange SAML SSO</h2></td>
+	</tr>
+	<tr>
 			<!--Register with miniOrange-->
+	<td style="vertical-align:top;width:65%;">
 		<form name="f" method="post" action="">
 			<input type="hidden" name="option" value="mo_saml_register_customer" />
 			<div class="mo_table_layout">
@@ -108,11 +112,21 @@ function mo_saml_show_new_registration_page_saml() {
 				</div>
 			</div>
 		</form>
+	</td>
+	<td style="vertical-align:top;padding-left:1%;">
+		<?php echo miniorange_support_saml(); ?>	
+	</td>
+	</tr>
 		<?php
 }
 function mo_saml_show_verify_password_page_saml() {
 	?>
+	<tr>
+		<td colspan="2"><h2>miniOrange SAML SSO</h2></td>
+	</tr>
+	<tr>
 			<!--Verify password with miniOrange-->
+	<td style="vertical-align:top;width:65%;">
 		<form name="f" method="post" action="">
 			<input type="hidden" name="option" value="mo_saml_verify_customer" />
 			<div class="mo_table_layout">
@@ -145,10 +159,15 @@ function mo_saml_show_verify_password_page_saml() {
 				</div>
 			</div>
 		</form>
+	</td>
+	<td style="vertical-align:top;padding-left:1%;">
+		<?php echo miniorange_support_saml(); ?>	
+	</td>
+	</tr>
 		<?php
 }
 
-function mo_cross_domain_saml_config() {
+/*function mo_cross_domain_saml_config() {
 	?>
 <div id="tab">
 	<h2 class="nav-tab-wrapper">
@@ -214,6 +233,32 @@ function mo_cross_domain_saml_config() {
 	<?php } ?>
 </div>
 		<?php
+}*/
+
+function mo_saml_apps_page($active_tab) {
+	?>
+	<tr>
+	<h2 class="nav-tab-wrapper">
+		<a class="nav-tab <?php echo $active_tab == 'config' ? 'nav-tab-active' : ''; ?>" href="<?php echo add_query_arg( array('tab' => 'config'), $_SERVER['REQUEST_URI'] ); ?>">Step 1: Configure Identity Provider</a>
+		<a class="nav-tab <?php echo $active_tab == 'save' ? 'nav-tab-active' : ''; ?>" href="<?php echo add_query_arg( array('tab' => 'save'), $_SERVER['REQUEST_URI'] ); ?>">Step 2: Configure SAML Plugin</a>
+		<a class="nav-tab <?php echo $active_tab == 'opt' ? 'nav-tab-active' : ''; ?>" href="<?php echo add_query_arg( array('tab' => 'opt'), $_SERVER['REQUEST_URI'] ); ?>">Step 3: Configure Attribute Mapping</a>
+	</h2>
+	<td style="vertical-align:top;width:65%;">
+	<?php
+	if($active_tab == 'save') {
+		mo_saml_apps_config_saml();
+	} else if($active_tab == 'opt') {
+		mo_saml_save_optional_config();
+	} else {
+		mo_saml_save_plugin_config();
+	}
+	?>
+	</td>
+	<td style="vertical-align:top;padding-left:1%;">
+		<?php echo miniorange_support_saml(); ?>	
+	</td>
+	</tr>
+	<?php
 }
 
 
@@ -234,30 +279,20 @@ function mo_saml_apps_config_saml() {
 		$saml_issuer = get_option('saml_issuer');
 		$saml_x509_certificate = get_option('saml_x509_certificate');
 		$saml_response_signed = get_option('saml_response_signed');
-		if($saml_response_signed == NULL) {$saml_response_signed = 'checked'; }
+		if($saml_response_signed == NULL) {$saml_response_signed = 'Yes'; }
 		$saml_assertion_signed = get_option('saml_assertion_signed');
 		if($saml_assertion_signed == NULL) {$saml_assertion_signed = 'Yes'; }
 		
-		//Attribute mapping
-		$saml_am_username = get_option('saml_am_username');	
-		if($saml_am_username == NULL) {$saml_am_username = 'NameID'; }
-		$saml_am_email = get_option('saml_am_email');
-		if($saml_am_email == NULL) {$saml_am_email = 'NameID'; }
-		$saml_am_first_name = get_option('saml_am_first_name');
-		$saml_am_last_name = get_option('saml_am_last_name');
-		$saml_am_role = get_option('saml_am_role');
-		
 		
 		?>
-
 		<form name="saml_form" method="post" action="">
 		<input type="hidden" name="option" value="login_widget_saml_save_settings" />
 		<table width="98%" border="0" style="background-color:#FFFFFF; border:1px solid #CCCCCC; padding:0px 0px 0px 10px; margin:2px;">
 		  <tr>
-			<td colspan="2"><h2>Add Identity Provider: - REQUIRED</h2> (<a href="#instructions_idp">click here for instructions</a>)</td>
+			<td colspan="2"><h3>Configure SAML Plugin</h3></td>
 		  </tr>
 		 <tr>
-			<td colspan="2"><h4>Login to the SAML application(Identity Provider). Search for, "Configuring &lt;SAML App&gt; as an IDP (Identity provider) with SAML 2.0", follow instructions for configuring the SAML application as an "Identity Provider". Use <a href="#instructions_idp">these settings</a> for configuration. Download metadeta.xml and enter the data below.<h4></td>
+			<td colspan="2"><h4>After completing your configuration, download metadeta.xml from your Identity Provider and enter the data below.</h4></td>
 		  </tr>
 		  <tr>
 			<td style="width:200px;"><strong>Identity Provider Name *:</strong></td>
@@ -265,7 +300,7 @@ function mo_saml_apps_config_saml() {
 		  </tr>
 		  <tr>
 			<td>&nbsp;</td>
-			<td><i>Enter the name of the Identity Provider. Example: Salesforce, OpenAM</i><br/></td>
+			<td><i>Enter the name of the Identity Provider. Example: Okta, Ping, OpenAM, Shibboleth</i><br/></td>
 		  </tr>
 		  <tr><td>&nbsp;</td></tr>
 		  <tr>
@@ -337,12 +372,32 @@ function mo_saml_apps_config_saml() {
 		
 		</table>
 		</form>
-		<br>
+	<?php
+}
+
+function mo_saml_save_optional_config(){
+	global $wpdb;
+	$entity_id = get_option('entity_id');
+	if(!$entity_id) { 
+		$entity_id = 'https://auth.miniorange.com/moas';
+	}
+	$sso_url = get_option('sso_url');
+	$cert_fp = get_option('cert_fp');
+	
+	//Attribute mapping
+	$saml_am_username = get_option('saml_am_username');	
+	if($saml_am_username == NULL) {$saml_am_username = 'NameID'; }
+	$saml_am_email = get_option('saml_am_email');
+	if($saml_am_email == NULL) {$saml_am_email = 'NameID'; }
+	$saml_am_first_name = get_option('saml_am_first_name');
+	$saml_am_last_name = get_option('saml_am_last_name');
+	$saml_am_role = get_option('saml_am_role');
+	?>
 		<form name="saml_form_am" method="post" action="">
 		<input type="hidden" name="option" value="login_widget_saml_attribute_mapping" />
 		<table width="98%" border="0" style="background-color:#FFFFFF; border:1px solid #CCCCCC; padding:0px 0px 0px 10px; margin:2px;">
 		  <tr>
-			<td colspan="2"><a id="toggle_am_content"><h2>Attribute Mapping : - OPTIONAL</h2></a></td>
+			<td colspan="2"><a id="toggle_am_content"><h3>Attribute Mapping (optional)</h3></a></td>
 		  </tr>
 		
 			  <tr>
@@ -393,21 +448,23 @@ function mo_saml_apps_config_saml() {
 				<br /><br />
 				</td>
 			  </tr>
-			  
-			  <br />
 				
 		</table>
 		</form>
+	<?php
+}
+
+function mo_saml_save_plugin_config() {
+	?>
 		<form>
-		<br /><br />
 		<div id="instructions_idp"></div>
 		<table width="98%" border="0" style="background-color:#FFFFFF; border:1px solid #CCCCCC; padding:0px 0px 0px 10px; margin:2px;">
-		  <tr>
-			<td width="45%"><h2>Instructions: </h2></td>
+		  <!--tr>
+			<td width="45%"><h3>Configure Identity Provider </h3></td>
 			<td width="55%">&nbsp;</td>
-		  </tr>
+		  </tr-->
 		<tr>
-		<td colspan="2"><?php mo_login_help();?></td>
+			<td colspan="2"><?php mo_login_help();?></td>
 		</tr>
 		</table>
 		</form>
@@ -416,12 +473,14 @@ function mo_saml_apps_config_saml() {
 </div>
 <?php
 }
+
 function mo_saml_get_test_url(){
 	
 	$url = get_option('mo_saml_host_name') . '/idptest/?id=' . get_option('mo_saml_admin_customer_key') . '&key=' . get_option('mo_saml_customer_token');
 	//$url = get_option('mo_saml_host_name') . '/moas/rest/saml/request?id=' . get_option('mo_saml_admin_customer_key') . '&returnurl=' . urlencode( site_url() . "/?option=readsamllogin" );
 	return $url;
 }
+
 function mo_saml_is_customer_registered_saml() {
 			$email 			= get_option('mo_saml_admin_email');
 			$phone 			= get_option('mo_saml_admin_phone');
@@ -435,16 +494,68 @@ function mo_saml_is_customer_registered_saml() {
 
 
 function mo_login_help(){ ?>
-		<p><font color="#FF0000"><strong>Note*</strong></font>
-		<br />
-		miniOrange SAML SSO Plugin acts as a SAML 2.0 Service Provider which can be configured to establish the trust between the plugin and various SAML 2.0 supported Identity Providers to securely authenticate the user to the Wordpress site.
-
+		<br/>
+		<p><!--font color="#FF0000"><strong>Note*</strong></font-->
+			miniOrange SAML SSO Plugin acts as a SAML 2.0 Service Provider which can be configured to establish trust between your wordpress site (where the plugin is installed) and your Identity Provider instance.
 		</p>
-		<h2>Help :</h2>
+		<!--h2>Help :</h2-->
 	
 		<p>
 		
 		<div id="miniorange_provider"></div>
+			<h3>Pre-requisite</h3>
+			<ol>
+				<li>You must have login credentials of an adminisrator for your Identity Provider.</li>
+				<li>You must have a good understanding of what an IdP and SP is and basic understanding of how SAML works.</li>
+			</ol>
+
+			<b>If you need help understanding any of this, please submit a query using the widget on the right hand side.</b>
+			
+			<br/>
+			<h3>The way it works</h3>
+			<table border="0" style="background-color:#FFFFFF; border:1px solid #CCCCCC; padding:0px 0px 0px 10px; margin:2px;">
+				<tr>
+					<td><b>Wordpress site</b></td>
+					<td>----------<b>A</b>----------</td>
+					<td><b>miniOrange SAML Plugin</b></td> 
+					<td>------------<b>B</b>-----------</td>
+					<td><b>Your IdP</b></td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+					<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Automatic)</td>
+					<td>&nbsp;</td>
+					<td>(User configured)</td>
+					<td>&nbsp;</td>
+				</tr>
+			</table>
+			<p>For getting (A) to work properly, you dont need to do anything. As soon as you install the plugin, this link is established. <br/>For getting (B) setup properly, you need to make the following configurations in your IdP (by logging in as an admin)</p>
+			<p>All you are doing here is saying that your miniOrange account on the cloud, trusts your IdP.</p>
+			
+			<h3>Configuring your Identity provider</h3>
+			<p>The requests for login may initiate on your wordpress site or from your Identity provider dashboard.</p>
+			
+			<h4>If it initiates from the wordpress site, then do the following configuration - </h4>
+
+			<ol>
+				<li>ACS Url : https://auth.miniorange.com/moas/rest/saml/acs</li>
+				<li>SP-EntityID/ISSUER : https://auth.miniorange.com/moas</li>
+				<li>Subject Type	: Username/Email Address</li>
+			</ol>
+			
+			<h4>If it initiates from your Identity provider dashboard then do the following configuration - </h4>
+			Copy and paste the following URL against default Relay State URL in the IdP configuration:
+			<br/><br/>
+			<code><?php echo site_url(); ?>?option=readsamllogin&mId=<?php echo get_option('mo_saml_admin_customer_key') ?></code>			
+			
+			<h3>Get data for Add Identity Provider</h3>
+			<p>After configuration of Identity Provider, download <b>metadata.xml</b>. You will need this to <u>fill the form in the next step</u>.<p>
+			
+			<h3>Add login Link to post/page/blog</h2>
+			<ol>
+				<li>Go to Appearances > Widgets</li>
+				<li>Select Login with you Identity Provider. Drag and drop to your favourite location and save.</li>
+			</ol>
 			<!--h2>Configuring the plugin.</h2>
 			<ol>
 			<li>Login to the Identity Provider.</li>
@@ -466,7 +577,7 @@ function mo_login_help(){ ?>
 			</ol-->
 		
 		
-			<h2>Configure the Identity Provider with the following settings: </h2>
+			<!--h3>Configure the Identity Provider with the following settings: </h3>
 			 <p>Now you need to configure the following settings in your Identity Provider for authenticating user back to the Wordpress site from your Identity Provider.</p>
 
 			 <ol>
@@ -483,7 +594,7 @@ function mo_login_help(){ ?>
 			</ol>
 	
 
-		</p>	  
+		</p-->	  
 	  
 	<?php }
 
@@ -509,8 +620,12 @@ function mo_login_cd_help(){ ?>
 
 function mo_saml_show_otp_verification(){
 	?>
-		
+	<tr>
+		<td colspan="2"><h2>miniOrange SAML SSO</h2></td>
+	</tr>
+	<tr>
 		<!-- Enter otp -->
+	<td style="vertical-align:top;width:65%;">
 		<form name="f" method="post" id="otp_form" action="">
 		
 			<input type="hidden" name="option" value="mo_saml_validate_otp" />
@@ -546,7 +661,11 @@ function mo_saml_show_otp_verification(){
 		</form>
 						</table>
 						</div>
-
+	</td>
+	<td style="vertical-align:top;padding-left:1%;">
+		<?php echo miniorange_support_saml(); ?>	
+	</td>
+	</tr>
 	
 <?php
 }
@@ -570,15 +689,15 @@ function miniorange_support_saml(){
 				<table class="mo_settings_table">
 					<tr>
 						<td><b><font color="#FF0000">*</font>Email:</b></td>
-						<td><input type="email" class="mo_table_textbox" required name="mo_saml_contact_us_email" value="<?php echo get_option("mo_saml_admin_email"); ?>"></td>
+						<td><input style="width:100%" type="email" class="mo_table_textbox" required name="mo_saml_contact_us_email" value="<?php echo get_option("mo_saml_admin_email"); ?>"></td>
 					</tr>
 					<tr>
 						<td><b>Phone:</b></td>
-						<td><input type="tel" id="contact_us_phone" pattern="[\+]\d{11,14}|[\+]\d{1,4}[\s]\d{9,10}" class="mo_table_textbox" name="mo_saml_contact_us_phone" value="<?php echo get_option('mo_saml_admin_phone');?>"></td>
+						<td><input type="tel" style="width:100%" id="contact_us_phone" pattern="[\+]\d{11,14}|[\+]\d{1,4}[\s]\d{9,10}" class="mo_table_textbox" name="mo_saml_contact_us_phone" value="<?php echo get_option('mo_saml_admin_phone');?>"></td>
 					</tr>
 					<tr>
 						<td><b><font color="#FF0000">*</font>Query:</b></td>
-						<td><textarea class="mo_table_textbox" onkeypress="mo_saml_valid_query(this)" onkeyup="mo_saml_valid_query(this)" onblur="mo_saml_valid_query(this)" required name="mo_saml_contact_us_query" rows="4" style="resize: vertical;"></textarea></td>
+						<td><textarea class="mo_table_textbox" style="width:100%" onkeypress="mo_saml_valid_query(this)" onkeyup="mo_saml_valid_query(this)" onblur="mo_saml_valid_query(this)" required name="mo_saml_contact_us_query" rows="4" style="resize: vertical;"></textarea></td>
 					</tr>
 				</table>
 				<div style="text-align:center;">

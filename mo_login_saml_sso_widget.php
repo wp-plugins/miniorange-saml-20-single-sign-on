@@ -57,7 +57,12 @@ class mo_login_wid extends WP_Widget {
 		<input type="hidden" name="option" value="saml_user_login" />
 		<input type="hidden" name="redirect" value="<?php echo $redirect; ?>" />
 
-		<li><font size="+1" style="vertical-align:top;"> </font> <a href="javascript:void(0)" onClick="moSAMLLogin();">miniOrange SAML Login</a>
+		
+		<li><font size="+1" style="vertical-align:top;"> </font> <a href="javascript:void(0)" onClick="moSAMLLogin();">Login with 	<?php if(!is_null(get_option('saml_identity_name')))
+			echo get_option('saml_identity_name');
+		else
+			echo 'Configured Identity Provider'; ?>
+		</a>	
 			<a href="http://miniorange.com/wordpress-ldap-login" style="display:none">Login to WordPress using LDAP</a>
 		<a href="http://miniorange.com/cloud-identity-broker-service" style="display:none">Cloud Identity broker service</a>
 		</li>
@@ -204,6 +209,10 @@ function mo_login_validate(){
 				$user_email = '';
 				
 				//Check if Match/Create user is by username/email:
+				if($checkIfMatchBy == NULL)
+				{
+				$user_email = $_POST['NameID'];	
+				}
 				
 				if(isset($firstName))
 					$firstName = $_POST[$firstName];

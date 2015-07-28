@@ -3,7 +3,7 @@
 Plugin Name: miniOrange SSO using SAML 2.0
 Plugin URI: http://miniorange.com/
 Description: miniOrange SAML 2.0 SSO enables user to perform Single Sign On with any SAML 2.0 enabled Identity Provider. 
-Version: 1.2
+Version: 1.3
 Author: miniOrange
 Author URI: http://miniorange.com/
 */
@@ -415,14 +415,7 @@ class saml_mo_login {
 		//Add miniOrange SAML SSO
 		$page = add_menu_page( 'MO SAML Settings ' . __( 'Configure SAML Identity Provider for SSO', 'mo_saml_settings' ), 'miniOrange SAML 2.0 SSO', 'administrator', 'mo_saml_settings', array( $this, 'mo_login_widget_saml_options' ) );
 
-		//Cross domain setup
-		$page = add_submenu_page( 'mo_saml_settings', 'MO Login ' . __('Wordpress SSO to another site'), __('Wordpress SSO to another site'), 'administrator', 'mo_cross_domain_saml', 'mo_cross_domain_saml_config' );
-		
-		global $submenu;
-		if ( is_array( $submenu ) AND isset( $submenu['mo_saml_settings'] ) )
-		{
-			$submenu['mo_saml_settings'][0][0] = __( 'Configure SAML Identity Provider for SSO', 'mo_saml_login' );
-		}
+	
 	}
 	
 	
