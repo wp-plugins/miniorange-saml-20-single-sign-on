@@ -222,7 +222,7 @@ function mo_login_validate(){
 				
 				if($checkIfMatchBy == 'email')
 				{
-					if(isset($emailAttribute))
+					if(!empty($emailAttribute))
 					{
 					$user_email = $_POST[$emailAttribute];
 					}
@@ -233,7 +233,7 @@ function mo_login_validate(){
 				}
 				else
 				{
-					if(isset($usernameAttribute))
+					if(!empty($usernameAttribute))
 					{
 					$user_email = $_POST[$usernameAttribute];
 					}
