@@ -279,7 +279,7 @@ function mo_saml_apps_config_saml() {
 		$saml_issuer = get_option('saml_issuer');
 		$saml_x509_certificate = get_option('saml_x509_certificate');
 		$saml_response_signed = get_option('saml_response_signed');
-		if($saml_response_signed == NULL) {$saml_response_signed = 'Yes'; }
+		if($saml_response_signed == NULL) {$saml_response_signed = 'checked'; }
 		$saml_assertion_signed = get_option('saml_assertion_signed');
 		if($saml_assertion_signed == NULL) {$saml_assertion_signed = 'Yes'; }
 		
