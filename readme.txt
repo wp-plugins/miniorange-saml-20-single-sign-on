@@ -83,6 +83,9 @@ Please email us at info@miniorange.com or <a href="http://miniorange.com/contact
 
 == Upgrade Notice ==
 
+= 1.4 =
+Added fixes.
+
 = 1.3 =
 Added validations and fixes.
 UI Improvements.
