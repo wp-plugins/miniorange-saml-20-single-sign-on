@@ -64,7 +64,7 @@ class mo_login_wid extends WP_Widget {
 			echo 'Configured Identity Provider'; 
 		?>
 		</a><?php
-		if( !mo_saml_check_empty_or_null_val(get_option('mo_saml_redirect_error_code')))
+		if( ! $this->mo_saml_check_empty_or_null_val(get_option('mo_saml_redirect_error_code')))
 		{
 
 			echo '<div class="overlay_back"></div><div id="showerrorreason" title="Error"><font color="red">There was an error while validating the SAML Response from your IdP.</font><br><b>Error code</b> 	:' . get_option('mo_saml_redirect_error_code') . '<br><b>Error reason</b> 	:' . get_option('mo_saml_redirect_error_reason') . '</div>';
