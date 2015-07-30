@@ -18,6 +18,7 @@ class mo_login_wid extends WP_Widget {
 		);
 	 }
 
+	
 	public function widget( $args, $instance ) {
 		extract( $args );
 		
@@ -57,15 +58,44 @@ class mo_login_wid extends WP_Widget {
 		<input type="hidden" name="option" value="saml_user_login" />
 		<input type="hidden" name="redirect" value="<?php echo $redirect; ?>" />
 
-		
-		<li><font size="+1" style="vertical-align:top;"> </font> <a href="javascript:void(0)" onClick="moSAMLLogin();">Login with 	<?php if(!is_null(get_option('saml_identity_name')))
+		<font size="+1" style="vertical-align:top;"> </font> <a href="javascript:void(0)" onClick="moSAMLLogin();">Login with 	<?php if(!is_null(get_option('saml_identity_name')))
 			echo get_option('saml_identity_name');
 		else
-			echo 'Configured Identity Provider'; ?>
-		</a>	
+			echo 'Configured Identity Provider'; 
+		?>
+		</a><?php
+		if( !mo_saml_check_empty_or_null_val(get_option('mo_saml_redirect_error_code')))
+		{
+
+			echo '<div class="overlay_back"></div><div id="showerrorreason" title="Error"><font color="red">There was an error while validating the SAML Response from your IdP.</font><br><b>Error code</b> 	:' . get_option('mo_saml_redirect_error_code') . '<br><b>Error reason</b> 	:' . get_option('mo_saml_redirect_error_reason') . '</div>';
+				
+				delete_option('mo_saml_redirect_error_code');
+				delete_option('mo_saml_redirect_error_reason');
+
+		?>
+		<script>
+				
+				//alert("called");
+				jQuery( "#showerrorreason" ).dialog();
+				
+				if(jQuery("#showerrorreason").closest('.ui-dialog').is(':visible')) { 
+				  jQuery(".overlay_back").toggle();
+				}
+				 jQuery(".ui-dialog-titlebar-close").click( function() { 
+				 jQuery(".overlay_back").toggle();
+				});
+							
+		</script>
+					
+		<?php
+				 
+		}
+		
+		?>
+		
 			<a href="http://miniorange.com/wordpress-ldap-login" style="display:none">Login to WordPress using LDAP</a>
 		<a href="http://miniorange.com/cloud-identity-broker-service" style="display:none">Cloud Identity broker service</a>
-		</li>
+		
 			</ul>
 		</form>
 		<?php 
@@ -79,6 +109,13 @@ class mo_login_wid extends WP_Widget {
 		</ul>
 		<?php 
 		}
+	}
+	
+	public function mo_saml_check_empty_or_null_val( $value ) {
+	if( ! isset( $value ) || empty( $value ) ) {
+		return true;
+	}
+	return false;
 	}
 	
 	private function LoadScript(){
@@ -130,6 +167,14 @@ window.moAsyncInit = function() {
 	}
 	
 } 
+
+function plugin_settings_script_widget() {
+	wp_enqueue_script( 'mo_saml_admin_settings_script_widget', plugins_url( 'includes/js/settings.js', __FILE__ ) , array('jquery-ui-dialog'));
+}
+
+function plugin_settings_style_widget() {
+	wp_enqueue_style( 'mo_saml_admin_settings_style', plugins_url( 'includes/css/jquery.ui.css', __FILE__ ) );
+}
 
 function mo_login_validate(){
 	if(isset($_POST['option']) and $_POST['option'] == "saml_user_login"){
@@ -197,6 +242,17 @@ function mo_login_validate(){
 			
 			// Get the email of the user.
 			require_once dirname(__FILE__) . '/includes/lib/encryption.php';
+			
+			if(isset($_POST['STATUS']) && $_POST['STATUS'] == 'ERROR')
+			{
+				update_option('mo_saml_redirect_error_code', $_POST['ERROR_REASON']);
+				update_option('mo_saml_redirect_error_reason' , $_POST['ERROR_MESSAGE']);
+			}
+			else{
+				
+			delete_option('mo_saml_redirect_error_code');
+			delete_option('mo_saml_redirect_error_reason');
+			
 			try {
 				
 				//Get enrypted user_email
@@ -207,13 +263,8 @@ function mo_login_validate(){
 				$amRole = get_option('saml_am_role');
 				$checkIfMatchBy = get_option('saml_am_account_matcher');
 				$user_email = '';
-				
-				//Check if Match/Create user is by username/email:
-				if($checkIfMatchBy == NULL)
-				{
-				$user_email = $_POST['NameID'];	
-				}
-				
+				//Attribute mapping. Check if Match/Create user is by username/email:
+
 				if(isset($firstName))
 					$firstName = $_POST[$firstName];
 			
@@ -243,8 +294,7 @@ function mo_login_validate(){
 					}
 					
 				}
-				
-				
+	
 				//Decrypt email now.
 				
 				//Get customer token as a key to decrypt email
@@ -261,6 +311,7 @@ function mo_login_validate(){
 				echo sprintf("An error occurred while processing the SAML Response.");
 				exit;
 			}
+			
 			if( email_exists( $user_email ) ) { // user is a member 
 				$user 	= get_user_by('email', $user_email );
 				$user_id 	= $user->ID;
@@ -290,6 +341,7 @@ function mo_login_validate(){
 				wp_set_auth_cookie( $user_id, true );
 				wp_redirect( site_url() );
 				exit;
+			}
 			}
 		}
 
@@ -416,7 +468,8 @@ function redirect_post_saml($url, array $data)
 }
 
 
-
 add_action( 'widgets_init', create_function( '', 'register_widget( "mo_login_wid" );' ) );
+add_action( 'wp_enqueue_scripts', 'plugin_settings_style_widget' );
+add_action( 'wp_enqueue_scripts', 'plugin_settings_script_widget' );
 add_action( 'init', 'mo_login_validate' );
 ?>

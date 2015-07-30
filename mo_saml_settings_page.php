@@ -517,12 +517,12 @@ function mo_login_help(){ ?>
 				<tr>
 					<td><b>Wordpress site</b></td>
 					<td>----------<b>A</b>----------</td>
-					<td><b>miniOrange SAML Plugin</b></td> 
+					<td><b>miniOrange Service Provider Instance</b></td> 
 					<td>------------<b>B</b>-----------</td>
 					<td><b>Your IdP</b></td>
 				</tr>
 				<tr>
-					<td>&nbsp;</td>
+					<td>(plugin installed) </td>
 					<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Automatic)</td>
 					<td>&nbsp;</td>
 					<td>(User configured)</td>
@@ -547,6 +547,21 @@ function mo_login_help(){ ?>
 			Copy and paste the following URL against default Relay State URL in the IdP configuration:
 			<br/><br/>
 			<code><?php echo site_url(); ?>?option=readsamllogin&mId=<?php echo get_option('mo_saml_admin_customer_key') ?></code>			
+			
+			<h4>You can select an Identity Provider from the list below to view the configuration guide.</h4>
+			
+			 <select id="selectBox" onchange="changeFunc();">
+			   <option value="selectanidp">Please Select an Identity Provider</option>
+			   <option value="okta">Okta</option>
+			   <option value="salesforce">Salesforce</option>
+			   <option value="openam">OpenAM</option>
+			   <option value="microsoftazuread">Microsoft Azure AD</option>
+			   <option value="simplesamlphp">SimpleSamlPhp</option>
+			   <option value="shibboleth">Shibboleth</option>	
+			   <option value="pingidentity">Ping Identity</option>
+			  </select>
+			
+			<div id = "displayguide"></div>
 			
 			<h3>Get data for Add Identity Provider</h3>
 			<p>After configuration of Identity Provider, download <b>metadata.xml</b>. You will need this to <u>fill the form in the next step</u>.<p>
@@ -595,6 +610,45 @@ function mo_login_help(){ ?>
 	
 
 		</p-->	  
+<script type="text/javascript">
+
+   function changeFunc() {
+    var selectBox = document.getElementById("selectBox");
+    var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+	var div = document.getElementById('displayguide');
+	div.innerHTML = '<br>Click here for ' + selectedValue + ' guide ';
+    if(selectedValue == 'okta')
+	{
+		div.innerHTML = div.innerHTML +  '<a href="http://developer.okta.com/docs/guides/setting_up_a_saml_application_in_okta.html" target="_blank">http://developer.okta.com/docs/guides/setting_up_a_saml_application_in_okta.html </a>';
+	}
+	if(selectedValue == 'salesforce')
+	{
+		div.innerHTML = div.innerHTML +  '<a href="https://help.salesforce.com/HTViewHelpDoc?id=identity_provider_enable.htm&language=en_US" target="_blank">https://help.salesforce.com/HTViewHelpDoc?id=identity_provider_enable.htm&language=en_US</a>';		
+	}
+	if(selectedValue == 'openam')
+	{
+		div.innerHTML = div.innerHTML + '<a href="https://help.salesforce.com/HTViewHelpDoc?id=identity_provider_enable.htm&language=en_US" target="_blank">https://help.salesforce.com/HTViewHelpDoc?id=identity_provider_enable.htm&language=en_US</a>'
+	}
+	if(selectedValue == 'microsoftazuread')
+	{
+		div.innerHTML = div.innerHTML + '<a href="https://msdn.microsoft.com/en-us/library/azure/dn641269.aspx" target="_blank">https://msdn.microsoft.com/en-us/library/azure/dn641269.aspx</a>';
+	}
+	if(selectedValue == 'simplesamlphp')
+	{
+		div.innerHTML = div.innerHTML + '<a href="https://simplesamlphp.org/docs/1.5/simplesamlphp-idp" target="_blank">https://simplesamlphp.org/docs/1.5/simplesamlphp-idp</a>';
+	}
+	if(selectedValue == 'shibboleth')
+	{
+		div.innerHTML = div.innerHTML + '<a href="https://shibboleth.net/products/identity-provider.html" target="_blank">https://shibboleth.net/products/identity-provider.html</a>'	
+	}
+	if(selectedValue == 'pingidentity')
+	{
+		div.innerHTML = div.innerHTML + '<a href="https://www.pingidentity.com/en/resources/articles/saml.html" target="_blank">https://www.pingidentity.com/en/resources/articles/saml.html</a>';
+	}
+	
+   }
+
+  </script>		
 	  
 	<?php }
 
@@ -682,22 +736,22 @@ function miniorange_support_saml(){
 			<h4>OR</h4>
 		</div>-->
 		<div>
-			<h3>Contact Us</h3>
-			<p>Contact us and we can help you with configuring your Identity Provider making the Plugin Integration with the IdP and SSO up and running.</p>
+			<h3>Support</h3>
+			<p>Need any help? We can help you with configuring your Identity Provider. Just send us a query and we will get back to you soon.</p>
 			<form method="post" action="">
 				<input type="hidden" name="option" value="mo_saml_contact_us_query_option" />
 				<table class="mo_settings_table">
 					<tr>
-						<td><b><font color="#FF0000">*</font>Email:</b></td>
-						<td><input style="width:100%" type="email" class="mo_table_textbox" required name="mo_saml_contact_us_email" value="<?php echo get_option("mo_saml_admin_email"); ?>"></td>
+						<!--td><b><font color="#FF0000">*</font>Email:</b></td-->
+						<td><input style="width:95%" type="email" class="mo_table_textbox" required name="mo_saml_contact_us_email" value="<?php echo get_option("mo_saml_admin_email"); ?>" placeholder="Enter your email"></td>
 					</tr>
 					<tr>
-						<td><b>Phone:</b></td>
-						<td><input type="tel" style="width:100%" id="contact_us_phone" pattern="[\+]\d{11,14}|[\+]\d{1,4}[\s]\d{9,10}" class="mo_table_textbox" name="mo_saml_contact_us_phone" value="<?php echo get_option('mo_saml_admin_phone');?>"></td>
+						<!--td><b>Phone:</b></td-->
+						<td><input type="tel" style="width:95%" id="contact_us_phone" pattern="[\+]\d{11,14}|[\+]\d{1,4}[\s]\d{9,10}" class="mo_table_textbox" name="mo_saml_contact_us_phone" value="<?php echo get_option('mo_saml_admin_phone');?>" placeholder="Enter your phone"></td>
 					</tr>
 					<tr>
-						<td><b><font color="#FF0000">*</font>Query:</b></td>
-						<td><textarea class="mo_table_textbox" style="width:100%" onkeypress="mo_saml_valid_query(this)" onkeyup="mo_saml_valid_query(this)" onblur="mo_saml_valid_query(this)" required name="mo_saml_contact_us_query" rows="4" style="resize: vertical;"></textarea></td>
+						<!--td><b><font color="#FF0000">*</font>Query:</b></td-->
+						<td><textarea class="mo_table_textbox" style="width:95%" onkeypress="mo_saml_valid_query(this)" onkeyup="mo_saml_valid_query(this)" onblur="mo_saml_valid_query(this)" required name="mo_saml_contact_us_query" rows="4" style="resize: vertical;" placeholder="Write your query here"></textarea></td>
 					</tr>
 				</table>
 				<div style="text-align:center;">

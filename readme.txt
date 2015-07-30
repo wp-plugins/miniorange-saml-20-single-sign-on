@@ -72,6 +72,16 @@ Please email us at info@miniorange.com or <a href="http://miniorange.com/contact
 
 == Changelog ==
 
+= 1.5.0 =
+Added error messaging.
+
+= 1.4.0 =
+Added fixes.
+
+= 1.3.0 =
+Added validations and fixes.
+UI Improvements.
+
 = 1.2.0 =
 * this is the third release.
 
@@ -82,6 +92,9 @@ Please email us at info@miniorange.com or <a href="http://miniorange.com/contact
 * this is the first release.
 
 == Upgrade Notice ==
+
+= 1.5 =
+Added error messaging.
 
 = 1.4 =
 Added fixes.

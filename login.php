@@ -3,7 +3,7 @@
 Plugin Name: miniOrange SSO using SAML 2.0
 Plugin URI: http://miniorange.com/
 Description: miniOrange SAML 2.0 SSO enables user to perform Single Sign On with any SAML 2.0 enabled Identity Provider. 
-Version: 1.4
+Version: 1.5
 Author: miniOrange
 Author URI: http://miniorange.com/
 */
@@ -65,6 +65,13 @@ class saml_mo_login {
 		delete_option('mo_saml_customer_token');
 		delete_option('mo_saml_message');
 		delete_option('mo_saml_registration_status');
+		
+		
+		delete_option('saml_am_first_name');
+		delete_option('saml_am_username');
+		delete_option('saml_am_email');
+		delete_option('saml_am_last_name');
+		delete_option('saml_am_role');
 	}
 	public function mo_sso_saml_uninstall(){
 		
@@ -413,9 +420,9 @@ class saml_mo_login {
 	function miniorange_sso_menu() {
 		
 		//Add miniOrange SAML SSO
-		$page = add_menu_page( 'MO SAML Settings ' . __( 'Configure SAML Identity Provider for SSO', 'mo_saml_settings' ), 'miniOrange SAML 2.0 SSO', 'administrator', 'mo_saml_settings', array( $this, 'mo_login_widget_saml_options' ) );
+		$page = add_menu_page( 'MO SAML Settings ' . __( 'Configure SAML Identity Provider for SSO', 'mo_saml_settings' ), 'miniOrange SAML 2.0 SSO', 'administrator', 'mo_saml_settings', array( $this, 'mo_login_widget_saml_options' ) , plugin_dir_url(__FILE__) . 'images/miniorange.png' );
 
-	
+		
 	}
 	
 	
