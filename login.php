@@ -3,7 +3,7 @@
 Plugin Name: miniOrange SSO using SAML 2.0
 Plugin URI: http://miniorange.com/
 Description: miniOrange SAML 2.0 SSO enables user to perform Single Sign On with any SAML 2.0 enabled Identity Provider. 
-Version: 1.5
+Version: 1.6
 Author: miniOrange
 Author URI: http://miniorange.com/
 */
@@ -72,6 +72,8 @@ class saml_mo_login {
 		delete_option('saml_am_email');
 		delete_option('saml_am_last_name');
 		delete_option('saml_am_role');
+		
+		delete_option('mo_saml_idp_config_complete');
 	}
 	public function mo_sso_saml_uninstall(){
 		
@@ -89,11 +91,16 @@ class saml_mo_login {
 		delete_option('saml_idp_config_id');
 		delete_option('saml_identity_name');
 		delete_option('saml_login_url');
-		delete_option('saml_logout_url');
 		delete_option('saml_issuer');
 		delete_option('saml_x509_certificate');
 		delete_option('saml_response_signed');
 		delete_option('saml_assertion_signed');
+		delete_option('saml_am_first_name');
+		delete_option('saml_am_username');
+		delete_option('saml_am_email');
+		delete_option('saml_am_last_name');
+		delete_option('saml_am_role');
+		delete_option('mo_saml_idp_config_complete');
 	}
 	
 	function mo_login_widget_text_domain(){
@@ -116,30 +123,42 @@ class saml_mo_login {
 		wp_enqueue_script( 'mo_saml_admin_settings_phone_script', plugins_url('includes/js/phone.js', __FILE__ ) );
 	}
 	function miniorange_login_widget_saml_save_settings(){
+		/*$customerRegistered = mo_saml_is_customer_registered();
+		if(!$customerRegistered) {
+			update_option('mo_saml_message', 'Please <a href="' . add_query_arg( array('tab' => 'login'), $_SERVER['REQUEST_URI'] ) . '">login or register with miniOrange</a> to configure the miniOrange SAML Plugin.');
+			$this->mo_saml_show_error_message();
+			return;
+		}*/
 		//Save saml configuration
-			if(isset($_POST['option']) and $_POST['option'] == "login_widget_saml_save_settings"){
-				
+		if(isset($_POST['option']) and $_POST['option'] == "login_widget_saml_save_settings"){
+			if(!_is_curl_installed()) {
+				update_option( 'mo_saml_message', 'ERROR: <a href="http://php.net/manual/en/curl.installation.php" target="_blank">PHP cURL extension</a> is not installed or disabled. Save Identity Provider Configuration failed.');
+				$this->mo_saml_show_error_message();
+				return;
+			}
+			
 			//validation and sanitization
 			$saml_identity_name = '';
 			$saml_login_url = '';
-			$saml_logout_url = '';
 			$saml_issuer = '';
 			$saml_x509_certificate = '';
 			if( $this->mo_saml_check_empty_or_null( $_POST['saml_identity_name'] ) || $this->mo_saml_check_empty_or_null( $_POST['saml_login_url'] ) || $this->mo_saml_check_empty_or_null( $_POST['saml_issuer'] )  ) {
 				update_option( 'mo_saml_message', 'All the fields are required. Please enter valid entries.');
 				$this->mo_saml_show_error_message();
 				return;
-			}else{
+			} else if(!preg_match("/^\w*$/", $_POST['saml_identity_name'])) {
+				update_option( 'mo_saml_message', 'Please match the requested format for Identity Provider Name. Only alphabets, numbers and underscore is allowed.');
+				$this->mo_saml_show_error_message();
+				return;
+			} else{
 				$saml_identity_name = sanitize_text_field( $_POST['saml_identity_name'] );
 				$saml_login_url = sanitize_text_field( $_POST['saml_login_url'] );
-				$saml_logout_url = sanitize_text_field( $_POST['saml_logout_url'] );
 				$saml_issuer = sanitize_text_field( $_POST['saml_issuer'] );
 				$saml_x509_certificate = sanitize_text_field( $_POST['saml_x509_certificate'] );
 			}
 			
 			update_option('saml_identity_name', $saml_identity_name);
 			update_option('saml_login_url', $saml_login_url);
-			update_option('saml_logout_url', $saml_logout_url);
 			update_option('saml_issuer', $saml_issuer);
 			update_option('saml_x509_certificate', $_POST['saml_x509_certificate']);	
 			if(isset($_POST['saml_response_signed']))
@@ -162,12 +181,15 @@ class saml_mo_login {
 			$saveSaml = new Customersaml();
 			$outputSaml = json_decode( $saveSaml->save_external_idp_config(), true );
 
-			if(isset($outputSaml['customerId']))
+			if(isset($outputSaml['customerId'])) {
+				update_option('saml_x509_certificate', $outputSaml['samlX509Certificate']);
 				update_option('mo_saml_message', 'Identity Provider details saved successfully');
-			else
-				update_option('mo_saml_message', 'Save configuration Failed. Server is down. Please try again.');
-			
-			$this->mo_saml_show_success_message();
+				$this->mo_saml_show_success_message();
+			}
+			else {
+				update_option('mo_saml_message', 'Identity Provider details could not be saved. Please try again.');
+				$this->mo_saml_show_error_message();
+			}
 			
 			//Call to saveConfiguration.
 			
@@ -180,6 +202,12 @@ class saml_mo_login {
 		}
 		//Save Attribute Mapping
 		if(isset($_POST['option']) and $_POST['option'] == "login_widget_saml_attribute_mapping"){
+			
+			if(!_is_curl_installed()) {
+				update_option( 'mo_saml_message', 'ERROR: <a href="http://php.net/manual/en/curl.installation.php" target="_blank">PHP cURL extension</a> is not installed or disabled. Save Attribute Mapping failed.');
+				$this->mo_saml_show_error_message();
+				return;
+			}
 		
 		update_option('saml_am_username', $_POST['saml_am_username']);
 		update_option('saml_am_email', $_POST['saml_am_email']);
@@ -211,6 +239,12 @@ class saml_mo_login {
 		}
 				
 		if( isset( $_POST['option'] ) and $_POST['option'] == "mo_saml_register_customer" ) {	//register the admin to miniOrange
+		
+			if(!_is_curl_installed()) {
+				update_option( 'mo_saml_message', 'ERROR: <a href="http://php.net/manual/en/curl.installation.php" target="_blank">PHP cURL extension</a> is not installed or disabled. Registration failed.');
+				$this->mo_saml_show_error_message();
+				return;
+			}
 			
 			//validation and sanitization
 			$email = '';
@@ -264,6 +298,12 @@ class saml_mo_login {
 	
 		}
 		if(isset($_POST['option']) and $_POST['option'] == "mo_saml_validate_otp"){
+			
+			if(!_is_curl_installed()) {
+				update_option( 'mo_saml_message', 'ERROR: <a href="http://php.net/manual/en/curl.installation.php" target="_blank">PHP cURL extension</a> is not installed or disabled. Validate OTP failed.');
+				$this->mo_saml_show_error_message();
+				return;
+			}
 
 			//validation and sanitization
 			$otp_token = '';
@@ -288,6 +328,12 @@ class saml_mo_login {
 			}
 		}
 		if( isset( $_POST['option'] ) and $_POST['option'] == "mo_saml_verify_customer" ) {	//register the admin to miniOrange
+		
+			if(!_is_curl_installed()) {
+				update_option( 'mo_saml_message', 'ERROR: <a href="http://php.net/manual/en/curl.installation.php" target="_blank">PHP cURL extension</a> is not installed or disabled. Login failed.');
+				$this->mo_saml_show_error_message();
+				return;
+			}
 			
 			//validation and sanitization
 			$email = '';
@@ -322,6 +368,13 @@ class saml_mo_login {
 			}
 			update_option('mo_saml_admin_password', '');
 		}else if( isset( $_POST['option'] ) and $_POST['option'] == "mo_saml_contact_us_query_option" ) {
+			
+			if(!_is_curl_installed()) {
+				update_option( 'mo_saml_message', 'ERROR: <a href="http://php.net/manual/en/curl.installation.php" target="_blank">PHP cURL extension</a> is not installed or disabled. Query submit failed.');
+				$this->mo_saml_show_error_message();
+				return;
+			}
+			
 			// Contact Us query
 			$email = $_POST['mo_saml_contact_us_email'];
 			$phone = $_POST['mo_saml_contact_us_phone'];
@@ -342,6 +395,12 @@ class saml_mo_login {
 			}
 		}
 		else if( isset( $_POST['option'] ) and $_POST['option'] == "mo_saml_resend_otp" ) {
+			
+			if(!_is_curl_installed()) {
+				update_option( 'mo_saml_message', 'ERROR: <a href="http://php.net/manual/en/curl.installation.php" target="_blank">PHP cURL extension</a> is not installed or disabled. Resend OTP failed.');
+				$this->mo_saml_show_error_message();
+				return;
+			}
 
 					    $customer = new CustomerSaml();
 						$content = json_decode($customer->send_otp_token(), true);
@@ -361,9 +420,17 @@ class saml_mo_login {
 				delete_option('mo_saml_new_registration');
 				delete_option('mo_saml_admin_email');
 
-		}
+		} else if( isset( $_POST['option']) and $_POST['option'] == "mo_saml_idp_config") {
+				update_option( 'mo_saml_idp_config_complete', isset($_POST['mo_saml_idp_config_complete']) ? $_POST['mo_saml_idp_config_complete'] : 0);
+				if(get_option('mo_saml_idp_config_complete')) {
+					update_option( 'mo_saml_message', 'Please proceed to <a href="' . add_query_arg( array('tab' => 'save'), $_SERVER['REQUEST_URI'] ) . '">Configure Service Provider</a> and enter the required information.');
+					$this->mo_saml_show_success_message();
+				} else {
+					update_option( 'mo_saml_message', 'You need to complete your Identity Provider configuration before you can enter the values for the fields given in Configure SAML Plugin.');
+					$this->mo_saml_show_error_message();
+				}
 
-		
+		}
 	}
 	
 	function create_customer(){
@@ -376,7 +443,7 @@ class saml_mo_login {
 											update_option( 'mo_saml_admin_api_key', $customerKey['apiKey'] );
 											update_option( 'mo_saml_customer_token', $customerKey['token'] );
 											update_option('mo_saml_admin_password', '');
-											update_option( 'mo_saml_message', 'Registration complete!');
+											update_option( 'mo_saml_message', 'Thank you for registering with miniorange.');
 											update_option('mo_saml_registration_status','MO_OPENID_REGISTRATION_COMPLETE');
 											delete_option('mo_saml_verify_customer');
 											delete_option('mo_saml_new_registration');
@@ -420,7 +487,7 @@ class saml_mo_login {
 	function miniorange_sso_menu() {
 		
 		//Add miniOrange SAML SSO
-		$page = add_menu_page( 'MO SAML Settings ' . __( 'Configure SAML Identity Provider for SSO', 'mo_saml_settings' ), 'miniOrange SAML 2.0 SSO', 'administrator', 'mo_saml_settings', array( $this, 'mo_login_widget_saml_options' ) , plugin_dir_url(__FILE__) . 'images/miniorange.png' );
+		$page = add_menu_page( 'MO SAML Settings ' . __( 'Configure SAML Identity Provider for SSO', 'mo_saml_settings' ), 'miniOrange SAML 2.0 SSO', 'administrator', 'mo_saml_settings', array( $this, 'mo_login_widget_saml_options' ), plugin_dir_url(__FILE__) . 'images/miniorange.png' );
 
 		
 	}

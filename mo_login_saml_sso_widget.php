@@ -58,37 +58,21 @@ class mo_login_wid extends WP_Widget {
 		<input type="hidden" name="option" value="saml_user_login" />
 		<input type="hidden" name="redirect" value="<?php echo $redirect; ?>" />
 
-		<font size="+1" style="vertical-align:top;"> </font> <a href="javascript:void(0)" onClick="moSAMLLogin();">Login with 	<?php if(!is_null(get_option('saml_identity_name')))
-			echo get_option('saml_identity_name');
+		<font size="+1" style="vertical-align:top;"> </font> <a href="javascript:void(0)" onClick="moSAMLLogin();"><?php 
+		if(! $this->mo_saml_check_empty_or_null_val(get_option('saml_identity_name')))
+			echo "Login with " . get_option('saml_identity_name');
 		else
-			echo 'Configured Identity Provider'; 
+			echo "Please configure the miniOrange SAML Plugin first.";
+		
 		?>
 		</a><?php
 		if( ! $this->mo_saml_check_empty_or_null_val(get_option('mo_saml_redirect_error_code')))
 		{
 
-			echo '<div class="overlay_back"></div><div id="showerrorreason" title="Error"><font color="red">There was an error while validating the SAML Response from your IdP.</font><br><b>Error code</b> 	:' . get_option('mo_saml_redirect_error_code') . '<br><b>Error reason</b> 	:' . get_option('mo_saml_redirect_error_reason') . '</div>';
+			echo '<div class="overlay_back"></div><div id="showerrorreason" title="Login Error"><font color="red">We could not sign you in. Please contact your Administrator.</font></div>';
 				
 				delete_option('mo_saml_redirect_error_code');
-				delete_option('mo_saml_redirect_error_reason');
-
-		?>
-		<script>
-				
-				//alert("called");
-				jQuery( "#showerrorreason" ).dialog();
-				
-				if(jQuery("#showerrorreason").closest('.ui-dialog').is(':visible')) { 
-				  jQuery(".overlay_back").toggle();
-				}
-				 jQuery(".ui-dialog-titlebar-close").click( function() { 
-				 jQuery(".overlay_back").toggle();
-				});
-							
-		</script>
-					
-		<?php
-				 
+				delete_option('mo_saml_redirect_error_reason'); 
 		}
 		
 		?>
@@ -102,7 +86,7 @@ class mo_login_wid extends WP_Widget {
 		} else {
 		global $current_user;
      	get_currentuserinfo();
-		$link_with_username = __('Howdy,','mosaml').$current_user->display_name;
+		$link_with_username = __('Howdy, ','mosaml').$current_user->display_name;
 		?>
 		<ul class="login_wid">
 			<li><?php echo $link_with_username;?> | <a href="<?php echo wp_logout_url(site_url()); ?>" title="<?php _e('Logout','mosaml');?>"><?php _e('Logout','mosaml');?></a></li>
@@ -248,100 +232,158 @@ function mo_login_validate(){
 				update_option('mo_saml_redirect_error_code', $_POST['ERROR_REASON']);
 				update_option('mo_saml_redirect_error_reason' , $_POST['ERROR_MESSAGE']);
 			}
-			else{
+			else if(isset($_POST['STATUS']) && $_POST['STATUS'] == 'SUCCESS'){
+					
+				delete_option('mo_saml_redirect_error_code');
+				delete_option('mo_saml_redirect_error_reason');
 				
-			delete_option('mo_saml_redirect_error_code');
-			delete_option('mo_saml_redirect_error_reason');
-			
-			try {
-				
-				//Get enrypted user_email
-				$emailAttribute = get_option('saml_am_email');
-				$usernameAttribute = get_option('saml_am_username');
-				$firstName = get_option('saml_am_first_name');
-				$lastName = get_option('saml_am_last_name');
-				$amRole = get_option('saml_am_role');
-				$checkIfMatchBy = get_option('saml_am_account_matcher');
-				$user_email = '';
-				//Attribute mapping. Check if Match/Create user is by username/email:
+				try {
+					
+					//Get enrypted user_email
+					$emailAttribute = get_option('saml_am_email');
+					$usernameAttribute = get_option('saml_am_username');
+					$firstName = get_option('saml_am_first_name');
+					$lastName = get_option('saml_am_last_name');
+					$amRole = get_option('saml_am_role');
+					$checkIfMatchBy = get_option('saml_am_account_matcher');
+					$user_email = '';
+					$userName = '';
+					//Attribute mapping. Check if Match/Create user is by username/email:
 
-				if(isset($firstName))
-					$firstName = $_POST[$firstName];
-			
-				if(isset($lastName))
-					$lastName = $_POST[$lastName];
+					if(!empty($firstName))
+						$firstName = $_POST[$firstName];
 				
-				if($checkIfMatchBy == 'email')
-				{
-					if(!empty($emailAttribute))
-					{
-					$user_email = $_POST[$emailAttribute];
-					}
-					else
-					{
-					$user_email = $_POST['NameID'];
-					}
-				}
-				else
-				{
+					if(!empty($lastName))
+						$lastName = $_POST[$lastName];
+					
 					if(!empty($usernameAttribute))
+						$userName = $_POST[$usernameAttribute];
+					
+					
+					//Check whether the match is by email or username
+					if($checkIfMatchBy == 'email')
 					{
-					$user_email = $_POST[$usernameAttribute];
+						if(!empty($emailAttribute))
+						{
+						$user_email = $_POST[$emailAttribute];
+						}
+						else
+						{
+						$user_email = $_POST['NameID'];
+						}
 					}
 					else
 					{
-					$user_email = $_POST['NameID'];
+						if(!empty($usernameAttribute))
+						{
+						$user_email = $_POST[$usernameAttribute];
+						}
+						else
+						{
+						$user_email = $_POST['NameID'];
+						}
+						
+					}
+		
+					//Decrypt email now.
+					
+					//Get customer token as a key to decrypt email
+					$key = get_option('mo_saml_customer_token');
+				
+					if(isset($key) || trim($key) != '')
+					{
+					$deciphertext = AESEncryption::decrypt_data($user_email, $key);							 
+					$user_email = $deciphertext;				
 					}
 					
-				}
-	
-				//Decrypt email now.
+					//Decrypt firstname and lastName and username
+					
+					if(!empty($firstName) && !empty($key))
+					{
+						$decipherFirstName = AESEncryption::decrypt_data($firstName, $key);	
+						$firstName = $decipherFirstName;
+					}
+					if(!empty($lastName) && !empty($key))
+					{
+						$decipherLastName = AESEncryption::decrypt_data($lastName, $key);	
+						$lastName = $decipherLastName;
+					}
+					if(!empty($userName) && !empty($key))
+					{
+						$decipherUserName = AESEncryption::decrypt_data($userName, $key);	
+						$userName = $decipherUserName;
+					}
 				
-				//Get customer token as a key to decrypt email
-				$key = get_option('mo_saml_customer_token');
-			
-				if(isset($key) || trim($key) != '')
-				{
-				$deciphertext = AESEncryption::decrypt_data($user_email, $key);							 
-				$user_email = $deciphertext;				
 				}
-			
-			}
-			catch (Exception $e) {
-				echo sprintf("An error occurred while processing the SAML Response.");
-				exit;
-			}
-			
-			if( email_exists( $user_email ) ) { // user is a member 
-				$user 	= get_user_by('email', $user_email );
-				$user_id 	= $user->ID;
-				
-				if(isset($amRole))
-				{
-					echo "UPDATING role";
-				$user_id = wp_update_user( array( 'ID' => $user_id, 'role' => 'administrator' ) );
+				catch (Exception $e) {
+					echo sprintf("An error occurred while processing the SAML Response.");
+					exit;
 				}
-				if(isset($firstName))
-				{
-				$user_id = wp_update_user( array( 'ID' => $user_id, 'first_name' => $firstName ) );
-				}
-				if(isset($lastName))
-				{
-				$user_id = wp_update_user( array( 'ID' => $user_id, 'last_name' => $lastName ) );					
-				}
-			
 				
 				
-				wp_set_auth_cookie( $user_id, true );
-				wp_redirect( site_url() );
-				exit;
-			} else { // this user is a guest
-				$random_password = wp_generate_password( 10, false );
-				$user_id = wp_create_user( $user_email, $random_password, $user_email );
-				wp_set_auth_cookie( $user_id, true );
-				wp_redirect( site_url() );
-				exit;
-			}
+				if( email_exists( $user_email ) || username_exists($user_email) ) { // user is a member 
+				
+					if($checkIfMatchBy == 'username')
+					{		
+					$user 	= get_user_by('login', $user_email);
+					}
+					else
+					{
+					$user 	= get_user_by('email', $user_email );
+					}
+				
+					$user_id 	= $user->ID;
+					
+			
+					if(!empty($firstName))
+					{
+					$user_id = wp_update_user( array( 'ID' => $user_id, 'first_name' => $firstName ) );
+					}
+					if(!empty($lastName))
+					{
+					$user_id = wp_update_user( array( 'ID' => $user_id, 'last_name' => $lastName ) );					
+					}
+					if(!empty($userName))
+					{
+					$user_id = wp_update_user( array( 'ID' => $user_id, 'user_login' => $userName ) );					
+					}
+					
+					
+					
+					wp_set_auth_cookie( $user_id, true );
+					wp_redirect( site_url() );
+					exit;
+				} else { // this user is a guest
+					$random_password = wp_generate_password( 10, false );
+					if(!empty($userName))
+					{
+						$user_id = wp_create_user( $userName, $random_password, $user_email );
+					}
+					else
+					{
+						$user_id = wp_create_user( $user_email, $random_password, $user_email );
+					}
+					
+					if(!empty($amRole))
+					{
+					$user_id = wp_update_user( array( 'ID' => $user_id, 'role' => $amRole ) );
+					}
+					if(!empty($firstName))
+					{
+					$user_id = wp_update_user( array( 'ID' => $user_id, 'first_name' => $firstName ) );
+					}
+					if(!empty($lastName))
+					{
+					$user_id = wp_update_user( array( 'ID' => $user_id, 'last_name' => $lastName ) );					
+					}
+					if(!empty($userName))
+					{
+					$user_id = wp_update_user( array( 'ID' => $user_id, 'user_login' => $userName ) );					
+					}
+					wp_set_auth_cookie( $user_id, true );
+					wp_redirect( site_url() );
+					exit;
+				}
 			}
 		}
 

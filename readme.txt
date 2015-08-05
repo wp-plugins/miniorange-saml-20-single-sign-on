@@ -4,7 +4,7 @@ Donate link: http://miniorange.com
 Tags: login form, login, widget, login widget, widget login, sidebar login, login form, user login, authentication, WordPress login, single sign on, SSO, single sign on openid, single sign on saml, openid sso, openid connect, openid connect sso, sso saml, sso integration WordPress, sso using SAML, SAML 2.0 Service Provider, Wordpress Service Provider, SAML Single Sign-On, SSO using SAML, Add Identity Provider that supports SAML 2.0, Wordpress SSO to another Site.
 Requires at least: 2.0.2
 Tested up to: 4.2.1
-Stable tag: 2.2.0
+Stable tag: 2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,7 +21,7 @@ If you require any Single Sign On application or need any help with installing t
 = Features :- =
 
 *	Login to your Wordpress site using SAML 2.0 Compliant Identity Providers.
-*   Easily Configure the Identity Provider in plugin by providing just the SAML login URL, Logout URL, IDP Entity ID and Certificate.
+*   Easily Configure the Identity Provider in plugin by providing just the SAML login URL, IDP Entity ID and Certificate.
 *	Valid user registrations verified by the plugin.
 *	Easily integrate the login link with your Wordpress website using widgets. Just drop it in a desirable place in your website.
 *	Automatic user registration after login if the user is not already registered with your site.
@@ -50,7 +50,7 @@ For more support or info email us at info@miniorange.com or <a href="http://mini
 3. Now visit your site and you will see login with widget.
 
 = Settings =
-1. Provide the plugin with following Identity Provider settings : Identity Provider Name, SAML Login URL, SAML Logout URL, IDP Entity ID, SAML - X509 Certificate of the IDP.
+1. Provide the plugin with following Identity Provider settings : Identity Provider Name, SAML Login URL, IDP Entity ID, SAML - X509 Certificate of the IDP.
 2. Configure your Identity Provider with the provided details in the plugin.
 
 == Frequently Asked Questions ==
@@ -72,6 +72,9 @@ Please email us at info@miniorange.com or <a href="http://miniorange.com/contact
 
 == Changelog ==
 
+= 1.6.0 =
+Added help and troubleshooting guide.
+
 = 1.5.0 =
 Added error messaging.
 
@@ -92,6 +95,10 @@ UI Improvements.
 * this is the first release.
 
 == Upgrade Notice ==
+
+= 1.6 =
+Added help and troubleshooting guide.
+
 
 = 1.5 =
 Added error messaging.

@@ -298,7 +298,6 @@ class Customersaml {
 		$password 			= get_option('mo_saml_admin_password');
 		$custId 			= get_option('mo_saml_admin_customer_key');
 		$samlLoginUrl		= get_option('saml_login_url');
-		$samlLogoutUrl		= get_option('saml_logout_url');
 		$samlIssuer			= get_option('saml_issuer');
 		$samlX509Certificate= get_option('saml_x509_certificate');
 		$Id					= get_option('saml_idp_config_id');
@@ -310,7 +309,7 @@ class Customersaml {
 			'idpType' 				=> $idpType,
 			'identifier'			=> $identifier,
 			'samlLoginUrl'			=> $samlLoginUrl,
-			'samlLogoutUrl'			=> $samlLogoutUrl,
+			'samlLogoutUrl'			=> $samlLoginUrl,
 			'idpEntityId'			=> $samlIssuer,
 			'samlX509Certificate'	=> $samlX509Certificate,
 			'assertionSigned'		=> $assertionSigned,
