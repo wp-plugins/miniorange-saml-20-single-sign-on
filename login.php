@@ -3,7 +3,7 @@
 Plugin Name: miniOrange SSO using SAML 2.0
 Plugin URI: http://miniorange.com/
 Description: miniOrange SAML 2.0 SSO enables user to perform Single Sign On with any SAML 2.0 enabled Identity Provider. 
-Version: 1.6
+Version: 1.7
 Author: miniOrange
 Author URI: http://miniorange.com/
 */

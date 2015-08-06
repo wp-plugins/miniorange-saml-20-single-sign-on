@@ -4,7 +4,7 @@ Donate link: http://miniorange.com
 Tags: login form, login, widget, login widget, widget login, sidebar login, login form, user login, authentication, WordPress login, single sign on, SSO, single sign on openid, single sign on saml, openid sso, openid connect, openid connect sso, sso saml, sso integration WordPress, sso using SAML, SAML 2.0 Service Provider, Wordpress Service Provider, SAML Single Sign-On, SSO using SAML, Add Identity Provider that supports SAML 2.0, Wordpress SSO to another Site.
 Requires at least: 2.0.2
 Tested up to: 4.2.1
-Stable tag: 2.3
+Stable tag: 2.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -72,6 +72,9 @@ Please email us at info@miniorange.com or <a href="http://miniorange.com/contact
 
 == Changelog ==
 
+= 1.7.0 =
+Resolved UI issues for some users
+
 = 1.6.0 =
 Added help and troubleshooting guide.
 
@@ -96,9 +99,11 @@ UI Improvements.
 
 == Upgrade Notice ==
 
+= 1.7 =
+Resolved UI issues for some users
+
 = 1.6 =
 Added help and troubleshooting guide.
-
 
 = 1.5 =
 Added error messaging.

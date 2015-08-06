@@ -1,47 +1,60 @@
-jQuery(document).ready(function () {
-	
-	var googleEnabled = jQuery("#google_enable").is(":checked");
-	var eveEnabled = jQuery("#eve_enable").is(":checked");
-	var facebookEnabled = jQuery("#facebook_enable").is(":checked");
-	
-	if(!googleEnabled) {
-		jQuery("#panel2").toggle();
-	}
-	if(!eveEnabled) {
-		jQuery("#panel3").toggle();
-	}
-	if(!facebookEnabled) {
-		jQuery("#panel4").toggle();
-	}
-	
-	//show and hide instructions
-    jQuery("#api_help").click(function () {
-        jQuery("#api_instru").toggle();
-    });
-	jQuery("#eve_help").click(function () {
-        jQuery("#eve_instru").toggle();
-    });
-	jQuery("#google_help").click(function () {
-        jQuery("#google_instru").toggle();
-    });
-	jQuery("#facebook_help").click(function () {
-        jQuery("#facebook_instru").toggle();
-    });
-	
+jQuery(document).ready(function () {	
 	//show and hide attribute mapping instructions
     jQuery("#toggle_am_content").click(function () {
         jQuery("#show_am_content").toggle();
     });
 
+	/*
+	 * Help & Troubleshooting
+	 */
+	 
+	//Enable cURL
+	jQuery("#help_curl_enable_title").click(function () {
+        jQuery("#help_curl_enable_desc").slideToggle(400);
+    });
 	
-	//toggle content
-	jQuery("#toggle2").click(function() {
-		jQuery("#panel2").toggle();
-	});
-	jQuery("#toggle3").click(function() {
-		jQuery("#panel3").toggle();
-	});
-	jQuery("#toggle4").click(function() {
-		jQuery("#panel4").toggle();
-	});
+	//Widget steps
+	jQuery("#help_widget_steps_title").click(function () {
+        jQuery("#help_widget_steps_desc").slideToggle(400);
+    });
+	 
+	 //Instructions
+	 jQuery("#help_steps_title").click(function () {
+        jQuery("#help_steps_desc").slideToggle(400);
+    });
+	
+	//Working of plugin
+	 jQuery("#help_working_title").click(function () {
+        jQuery("#help_working_desc").slideToggle(400);
+    });
+	
+	//What is SAML
+	 jQuery("#help_saml_title").click(function () {
+        jQuery("#help_saml_desc").slideToggle(400);
+    });
+	
+	//SAML flows
+	 jQuery("#help_saml_flow_title").click(function () {
+        jQuery("#help_saml_flow_desc").slideToggle(400);
+    });
+	
+	//FAQ - certificate
+	 jQuery("#help_faq_cert_title").click(function () {
+        jQuery("#help_faq_cert_desc").slideToggle(400);
+    });
+	
+	//FAQ - 404 error
+	 jQuery("#help_faq_404_title").click(function () {
+        jQuery("#help_faq_404_desc").slideToggle(400);
+    });
+	
+	//FAQ - idp not configured properly issue
+	 jQuery("#help_faq_idp_config_title").click(function () {
+        jQuery("#help_faq_idp_config_desc").slideToggle(400);
+    });
+	
+	//FAQ - redirect to idp issue
+	 jQuery("#help_faq_idp_redirect_title").click(function () {
+        jQuery("#help_faq_idp_redirect_desc").slideToggle(400);
+    });
 });
