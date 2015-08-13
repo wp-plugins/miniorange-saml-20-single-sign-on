@@ -3,7 +3,7 @@
 Plugin Name: miniOrange SSO using SAML 2.0
 Plugin URI: http://miniorange.com/
 Description: miniOrange SAML 2.0 SSO enables user to perform Single Sign On with any SAML 2.0 enabled Identity Provider. 
-Version: 1.7
+Version: 2.0
 Author: miniOrange
 Author URI: http://miniorange.com/
 */
@@ -25,6 +25,8 @@ class saml_mo_login {
 		add_action( 'plugins_loaded',  array( $this, 'mo_login_widget_text_domain' ) );		
 		remove_action( 'admin_notices', array( $this, 'mo_saml_success_message') );
 		remove_action( 'admin_notices', array( $this, 'mo_saml_error_message') );
+		add_action('wp_authenticate', array( $this, 'mo_saml_authenticate' ) );
+		add_action('login_form', array( $this, 'mo_saml_modify_login_form' ) );
 	}
 	
 	function  mo_login_widget_saml_options () {
@@ -67,11 +69,11 @@ class saml_mo_login {
 		delete_option('mo_saml_registration_status');
 		
 		
-		delete_option('saml_am_first_name');
-		delete_option('saml_am_username');
-		delete_option('saml_am_email');
-		delete_option('saml_am_last_name');
-		delete_option('saml_am_role');
+		//delete_option('saml_am_first_name');
+		//delete_option('saml_am_username');
+		//delete_option('saml_am_email');
+		//delete_option('saml_am_last_name');
+		//delete_option('saml_am_role');
 		
 		delete_option('mo_saml_idp_config_complete');
 	}
@@ -99,8 +101,12 @@ class saml_mo_login {
 		delete_option('saml_am_username');
 		delete_option('saml_am_email');
 		delete_option('saml_am_last_name');
-		delete_option('saml_am_role');
+		delete_option('saml_am_default_user_role');
+		delete_option('saml_am_role_mapping');
+		delete_option('saml_am_group_name');
 		delete_option('mo_saml_idp_config_complete');
+		delete_option('mo_saml_enable_login_redirect');
+		delete_option('mo_saml_allow_wp_signin');
 	}
 	
 	function mo_login_widget_text_domain(){
@@ -209,16 +215,37 @@ class saml_mo_login {
 				return;
 			}
 		
-		update_option('saml_am_username', $_POST['saml_am_username']);
-		update_option('saml_am_email', $_POST['saml_am_email']);
-		update_option('saml_am_first_name', $_POST['saml_am_first_name']);
-		update_option('saml_am_last_name', $_POST['saml_am_last_name']);
-		update_option('saml_am_role', $_POST['saml_am_role']);
-		update_option('saml_am_account_matcher', $_POST['saml_am_account_matcher']);
-		
-		update_option('mo_saml_message', 'Attribute Mapping details saved successfully');
+			update_option('saml_am_username', $_POST['saml_am_username']);
+			update_option('saml_am_email', $_POST['saml_am_email']);
+			update_option('saml_am_first_name', $_POST['saml_am_first_name']);
+			update_option('saml_am_last_name', $_POST['saml_am_last_name']);
+			update_option('saml_am_group_name', $_POST['saml_am_group_name']);
+			update_option('saml_am_account_matcher', $_POST['saml_am_account_matcher']);
+			
+			update_option('mo_saml_message', 'Attribute Mapping details saved successfully');
 			$this->mo_saml_show_success_message();
 		
+		}
+		//Save Role Mapping
+		if(isset($_POST['option']) and $_POST['option'] == "login_widget_saml_role_mapping"){
+			
+			if(!_is_curl_installed()) {
+				update_option( 'mo_saml_message', 'ERROR: <a href="http://php.net/manual/en/curl.installation.php" target="_blank">PHP cURL extension</a> is not installed or disabled. Save Role Mapping failed.');
+				$this->mo_saml_show_error_message();
+				return;
+			}
+			update_option('saml_am_default_user_role', $_POST['saml_am_default_user_role']);
+	
+			$wp_roles = new WP_Roles();
+			$roles = $wp_roles->get_names();
+			$role_mapping;
+			foreach ($roles as $role_value => $role_name) {
+				$attr = 'saml_am_group_attr_values_' . $role_value;
+				$role_mapping[$role_value] = $_POST[$attr];
+			}
+			update_option('saml_am_role_mapping', $role_mapping);
+			update_option('mo_saml_message', 'Role Mapping details saved successfully.');
+			$this->mo_saml_show_success_message();
 		}
 		//Save Wordpress SSO to another site settings
 		if(isset($_POST['option']) and $_POST['option'] == "login_widget_cross_domain_save_settings"){
@@ -420,7 +447,7 @@ class saml_mo_login {
 				delete_option('mo_saml_new_registration');
 				delete_option('mo_saml_admin_email');
 
-		} else if( isset( $_POST['option']) and $_POST['option'] == "mo_saml_idp_config") {
+		} /*else if( isset( $_POST['option']) and $_POST['option'] == "mo_saml_idp_config") {
 				update_option( 'mo_saml_idp_config_complete', isset($_POST['mo_saml_idp_config_complete']) ? $_POST['mo_saml_idp_config_complete'] : 0);
 				if(get_option('mo_saml_idp_config_complete')) {
 					update_option( 'mo_saml_message', 'Please proceed to <a href="' . add_query_arg( array('tab' => 'save'), $_SERVER['REQUEST_URI'] ) . '">Configure Service Provider</a> and enter the required information.');
@@ -430,7 +457,41 @@ class saml_mo_login {
 					$this->mo_saml_show_error_message();
 				}
 
+		}*/ else if( isset( $_POST['option']) and $_POST['option'] == "mo_saml_enable_login_redirect_option") {
+			if(mo_saml_is_sp_configured()) {
+				if(array_key_exists('mo_saml_enable_login_redirect', $_POST)) {
+					$enable_redirect = $_POST['mo_saml_enable_login_redirect'];
+				} else {
+					$enable_redirect = 'false';
+				}				
+				if($enable_redirect == 'true') {
+					update_option('mo_saml_enable_login_redirect', 'true');
+					update_option('mo_saml_allow_wp_signin', 'true');
+				} else {
+					update_option('mo_saml_enable_login_redirect', '');
+					update_option('mo_saml_allow_wp_signin', '');
+				}
+				update_option( 'mo_saml_message', 'General settings updated.');
+				$this->mo_saml_show_success_message();
+			} else {
+				update_option( 'mo_saml_message', 'Please complete <a href="' . add_query_arg( array('tab' => 'save'), $_SERVER['REQUEST_URI'] ) . '" />Service Provider</a> configuration first.');
+				$this->mo_saml_show_error_message();
+			}
+		} else if( isset( $_POST['option']) and $_POST['option'] == "mo_saml_allow_wp_signin_option") {
+			if(array_key_exists('mo_saml_allow_wp_signin', $_POST)) {
+				$allow_wp_signin = $_POST['mo_saml_allow_wp_signin'];
+			} else {
+				$allow_wp_signin = 'false';
+			}
+			if($allow_wp_signin == 'true') {
+				update_option('mo_saml_allow_wp_signin', 'true');
+			} else {
+				update_option('mo_saml_allow_wp_signin', '');
+			}
+			update_option( 'mo_saml_message', 'General settings updated.');
+			$this->mo_saml_show_success_message();
 		}
+		
 	}
 	
 	function create_customer(){
@@ -492,7 +553,33 @@ class saml_mo_login {
 		
 	}
 	
+	function mo_saml_redirect_for_authentication() {
+		$mo_redirect_url = get_option('mo_saml_host_name') . "/moas/rest/saml/request?id=" . get_option('mo_saml_admin_customer_key') . "&returnurl=" . urlencode( site_url() . "/?option=readsamllogin" );
+		header('Location: ' . $mo_redirect_url);
+		exit();
+	}
 	
+	function mo_saml_authenticate() {
+		if( get_option('mo_saml_enable_login_redirect') == 'true' ) {
+			if( isset($_GET['loggedout']) && $_GET['loggedout'] == 'true' ) {
+				header('Location: ' . site_url());
+				exit();
+			} elseif ( get_option('mo_saml_allow_wp_signin') == 'true' ) {
+				if( ( isset($_GET['saml_sso']) && $_GET['saml_sso'] == 'false' ) || ( isset($_POST['saml_sso']) && $_POST['saml_sso'] == 'false' ) ) {
+					return;
+				} elseif ( isset( $_REQUEST['redirect_to']) ) {
+					$redirect_to = $_REQUEST['redirect_to'];
+					if( strpos( $redirect_to, 'wp-admin') !== false && strpos( $redirect_to, 'saml_sso=false') !== false) {
+						return;
+					} 
+				}
+			}
+			$this->mo_saml_redirect_for_authentication();
+		}
+	}
 	
+	function mo_saml_modify_login_form() {
+		echo '<input type="hidden" name="saml_sso" value="false">'."\n";
+	}
 }
 new saml_mo_login;

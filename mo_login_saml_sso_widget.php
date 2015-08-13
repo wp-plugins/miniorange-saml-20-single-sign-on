@@ -39,7 +39,9 @@ class mo_login_wid extends WP_Widget {
 
 
 	public function form( $instance ) {
-		$wid_title = $instance[ 'wid_title' ];
+		$wid_title = '';
+		if(array_key_exists('wid_title', $instance))
+			$wid_title = $instance[ 'wid_title' ];
 		?>
 		<p><label for="<?php echo $this->get_field_id('wid_title'); ?>"><?php _e('Title:'); ?> </label>
 		<input class="widefat" id="<?php echo $this->get_field_id('wid_title'); ?>" name="<?php echo $this->get_field_name('wid_title'); ?>" type="text" value="<?php echo $wid_title; ?>" />
@@ -56,20 +58,18 @@ class mo_login_wid extends WP_Widget {
 		?>
 		<form name="login" id="login" method="post" action="">
 		<input type="hidden" name="option" value="saml_user_login" />
-		<input type="hidden" name="redirect" value="<?php echo $redirect; ?>" />
 
-		<font size="+1" style="vertical-align:top;"> </font> <a href="javascript:void(0)" onClick="moSAMLLogin();"><?php 
-		if(! $this->mo_saml_check_empty_or_null_val(get_option('saml_identity_name')))
-			echo "Login with " . get_option('saml_identity_name');
+		<font size="+1" style="vertical-align:top;"> </font><?php
+		$identity_provider = get_option('saml_identity_name');
+		if(!empty($identity_provider))
+			echo '<a href="' . get_option('mo_saml_host_name') . '/moas/rest/saml/request?id=' . get_option('mo_saml_admin_customer_key') . '&returnurl= ' . urlencode( site_url() . "/?option=readsamllogin" ) . '">Login with ' . $identity_provider . '</a>';
 		else
 			echo "Please configure the miniOrange SAML Plugin first.";
 		
-		?>
-		</a><?php
 		if( ! $this->mo_saml_check_empty_or_null_val(get_option('mo_saml_redirect_error_code')))
 		{
 
-			echo '<div class="overlay_back"></div><div id="showerrorreason" title="Login Error"><font color="red">We could not sign you in. Please contact your Administrator.</font></div>';
+			echo '<div></div><div title="Login Error"><font color="red">We could not sign you in. Please contact your Administrator.</font></div>';
 				
 				delete_option('mo_saml_redirect_error_code');
 				delete_option('mo_saml_redirect_error_reason'); 
@@ -86,11 +86,9 @@ class mo_login_wid extends WP_Widget {
 		} else {
 		global $current_user;
      	get_currentuserinfo();
-		$link_with_username = __('Howdy, ','mosaml').$current_user->display_name;
+		$link_with_username = __('Hello, ','mosaml').$current_user->display_name;
 		?>
-		<ul class="login_wid">
-			<li><?php echo $link_with_username;?> | <a href="<?php echo wp_logout_url(site_url()); ?>" title="<?php _e('Logout','mosaml');?>"><?php _e('Logout','mosaml');?></a></li>
-		</ul>
+		<?php echo $link_with_username;?> | <a href="<?php echo wp_logout_url(site_url()); ?>" title="<?php _e('Logout','mosaml');?>"><?php _e('Logout','mosaml');?></a></li>
 		<?php 
 		}
 	}
@@ -153,11 +151,13 @@ window.moAsyncInit = function() {
 } 
 
 function plugin_settings_script_widget() {
-	wp_enqueue_script( 'mo_saml_admin_settings_script_widget', plugins_url( 'includes/js/settings.js', __FILE__ ) , array('jquery-ui-dialog'));
+	wp_enqueue_script('jquery');
+	wp_enqueue_script( 'mo_saml_admin_settings_script_widget', plugins_url( 'includes/js/settings.js', __FILE__ ) );
+	wp_enqueue_script( 'mo_saml_admin_popup_script_widget', plugins_url( 'includes/js/jquery-impromptu.min.js', __FILE__ ) );
 }
 
 function plugin_settings_style_widget() {
-	wp_enqueue_style( 'mo_saml_admin_settings_style', plugins_url( 'includes/css/jquery.ui.css', __FILE__ ) );
+	wp_enqueue_style( 'mo_saml_popup_style', plugins_url( 'includes/css/jquery-impromptu.min.css', __FILE__ ) );
 }
 
 function mo_login_validate(){
@@ -244,26 +244,30 @@ function mo_login_validate(){
 					$usernameAttribute = get_option('saml_am_username');
 					$firstName = get_option('saml_am_first_name');
 					$lastName = get_option('saml_am_last_name');
-					$amRole = get_option('saml_am_role');
+					$groupName = get_option('saml_am_group_name');
+					$defaultRole = get_option('saml_am_default_user_role');
 					$checkIfMatchBy = get_option('saml_am_account_matcher');
 					$user_email = '';
 					$userName = '';
 					//Attribute mapping. Check if Match/Create user is by username/email:
 
-					if(!empty($firstName))
+					if(!empty($firstName) && array_key_exists($firstName, $_POST) )
 						$firstName = $_POST[$firstName];
 				
-					if(!empty($lastName))
+					if(!empty($lastName) && array_key_exists($lastName, $_POST) )
 						$lastName = $_POST[$lastName];
 					
-					if(!empty($usernameAttribute))
+					if(!empty($usernameAttribute) && array_key_exists($usernameAttribute, $_POST))
 						$userName = $_POST[$usernameAttribute];
+					
+					if(!empty($groupName) && array_key_exists($groupName, $_POST) )
+						$groupName = $_POST[$groupName];
 					
 					
 					//Check whether the match is by email or username
 					if($checkIfMatchBy == 'email')
 					{
-						if(!empty($emailAttribute))
+						if(!empty($emailAttribute) && array_key_exists($emailAttribute, $_POST) )
 						{
 						$user_email = $_POST[$emailAttribute];
 						}
@@ -313,7 +317,11 @@ function mo_login_validate(){
 						$decipherUserName = AESEncryption::decrypt_data($userName, $key);	
 						$userName = $decipherUserName;
 					}
-				
+					if(!empty($groupName) && !empty($key))
+					{
+						$decipherGroupName = AESEncryption::decrypt_data($groupName, $key);	
+						$groupName = $decipherGroupName;
+					}
 				}
 				catch (Exception $e) {
 					echo sprintf("An error occurred while processing the SAML Response.");
@@ -364,10 +372,30 @@ function mo_login_validate(){
 						$user_id = wp_create_user( $user_email, $random_password, $user_email );
 					}
 					
-					if(!empty($amRole))
-					{
-					$user_id = wp_update_user( array( 'ID' => $user_id, 'role' => $amRole ) );
+					// Assign role
+					$role_mapping = get_option('saml_am_role_mapping');
+					if(!empty($groupName) && !empty($role_mapping)) {
+						$role_to_assign = '';
+						$found = false;
+						foreach ($role_mapping as $role_value => $group_names) {
+							$groups = explode(",", $group_names);
+							foreach ($groups as $group) {
+								if(trim($group) == trim($groupName)) {
+									$found = true;
+									$role_to_assign = $role_value;
+									$user_id = wp_update_user( array( 'ID' => $user_id, 'role' => $role_to_assign ) );
+									break 2;
+								}
+							}
+						}
+						if($found !== true && !empty($defaultRole)) {
+							$user_id = wp_update_user( array( 'ID' => $user_id, 'role' => $defaultRole ) );
+						} 
+					} 
+					elseif(!empty($defaultRole)) {
+						$user_id = wp_update_user( array( 'ID' => $user_id, 'role' => $defaultRole ) );
 					}
+					
 					if(!empty($firstName))
 					{
 					$user_id = wp_update_user( array( 'ID' => $user_id, 'first_name' => $firstName ) );
@@ -385,6 +413,7 @@ function mo_login_validate(){
 					exit;
 				}
 			}
+
 		}
 
 		

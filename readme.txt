@@ -1,10 +1,10 @@
 === miniOrange SAML 2.0 Single Sign On ===
 Contributors: miniOrange
 Donate link: http://miniorange.com
-Tags: login form, login, widget, login widget, widget login, sidebar login, login form, user login, authentication, WordPress login, single sign on, SSO, single sign on openid, single sign on saml, openid sso, openid connect, openid connect sso, sso saml, sso integration WordPress, sso using SAML, SAML 2.0 Service Provider, Wordpress Service Provider, SAML Single Sign-On, SSO using SAML, Add Identity Provider that supports SAML 2.0, Wordpress SSO to another Site.
-Requires at least: 2.0.2
-Tested up to: 4.2.1
-Stable tag: 2.4
+Tags: single sign on, SSO, single sign on saml, sso saml, sso integration WordPress, sso using SAML, SAML 2.0 Service Provider, Wordpress SAML, SAML Single Sign-On, SSO using SAML, SAML 2.0, SAML 20, Wordpress SSO to another Site.
+Requires at least: 2.5.0
+Tested up to: 4.2.4
+Stable tag: 3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,12 +21,14 @@ If you require any Single Sign On application or need any help with installing t
 = Features :- =
 
 *	Login to your Wordpress site using SAML 2.0 Compliant Identity Providers.
-*   Easily Configure the Identity Provider in plugin by providing just the SAML login URL, IDP Entity ID and Certificate.
+*   Easily Configure the Identity Provider by providing just the SAML login URL, IDP Entity ID and Certificate.
 *	Valid user registrations verified by the plugin.
-*	Easily integrate the login link with your Wordpress website using widgets. Just drop it in a desirable place in your website.
+*	Easily integrate the login link with your Wordpress site using widgets/short code. Just drop it in a desirable place in your site.
 *	Automatic user registration after login if the user is not already registered with your site.
-*   Single Sign On to another Wordpress site or subdomain, using SAML and secure shared keys.
-* 	Supports Plethora of SAML 2.0 Identity providers like adAS, AssureBridge SAMLConnect, Bitium, Could Federation Service, Elastic SSO Team, Elastic SSO Enterprise, ILANTUS Sign On Express, iSAML, iWelcome, JOSSO, NetIQ Access Manager, PortalGuard, Safewhere Identify, Shibboleth, Symplified, TrustBuilder.
+*	Use the Attribute Mapping feature to map wordpress user profile attributes to your IdP attributes.
+*	Use the Role Mapping feature to assign roles in your IdP to your wordpress users during auto registration.
+*	Auto redirect users to your IdP for authentication without showing them your site's login page.
+* 	Supports plethora of SAML 2.0 Identity Providers like ADFS, Shibboleth, SimpleSAMLphp, Okta, OpenAM, etc.
 
 = Website - =
 Check out our website for other plugins <a href="http://miniorange.com/plugins" >http://miniorange.com/plugins</a> or <a href="https://wordpress.org/plugins/search.php?q=miniorange" >click here</a> to see all our listed WordPress plugins.
@@ -45,12 +47,12 @@ For more support or info email us at info@miniorange.com or <a href="http://mini
 3. Activate miniOrange SAML 2.0 Single Sign-On from your Plugins page.
 
 = Once Activated =
-1. Go to `miniOrange SAML 2.0 Single Sign-On` from side menu and follow the instructions.
-2. Go to `Appearance->Widgets` ,in available widgets you will find `miniOrange SAML 2.0 Single Sign-On` widget, drag it to chosen widget area where you want it to appear.
-3. Now visit your site and you will see login with widget.
+1. Go to `miniOrange SAML 2.0 SSO` from side menu and follow the instructions.
+2. Copy-paste the short code (available in plugin) to your webpage OR go to `Appearance->Widgets`,in available widgets you will find `Login with <YOUR_IdP>` widget, drag it to chosen widget area where you want it to appear.
+3. Now visit your site/webpage and you will see login-with link of your IdP.
 
 = Settings =
-1. Provide the plugin with following Identity Provider settings : Identity Provider Name, SAML Login URL, IDP Entity ID, SAML - X509 Certificate of the IDP.
+1. Provide the plugin with following Identity Provider settings : Identity Provider Name, SAML Login URL, IdP Entity ID, X.509 Certificate of the IdP.
 2. Configure your Identity Provider with the provided details in the plugin.
 
 == Frequently Asked Questions ==
@@ -63,14 +65,18 @@ Our very simple and easy registration lets you register with miniOrange. SAML 2.
 Once you have registered with a valid email-address and phone number, you will be able to add your Identity Provider.
 
 = For any other query/problem/request =
-Please email us at info@miniorange.com or <a href="http://miniorange.com/contact">Contact us</a>. You can also submit your query from plugin's configuration page.
+Visit Help & FAQ section in the plugin OR email us at info@miniorange.com or <a href="http://miniorange.com/contact">Contact us</a>. You can also submit your query from plugin's configuration page.
 
 == Screenshots ==
 
-1. Configuring the Identity Provider.
-2. Adding "SAML Login with IDP" Login Widget to website.
+1. General settings like auto redirect user to your IdP.
+2. Guide to configure your Wordpress site as Service Provider to your IdP.
+3. Configure your IdP in your Wordpress site.
 
 == Changelog ==
+
+= 2.0 =
+Added new feature like role mapping and auto redirect user to your IdP.
 
 = 1.7.0 =
 Resolved UI issues for some users
@@ -98,6 +104,9 @@ UI Improvements.
 * this is the first release.
 
 == Upgrade Notice ==
+
+= 2.0 =
+Added new feature like role mapping and auto redirect user to your IdP.
 
 = 1.7 =
 Resolved UI issues for some users
